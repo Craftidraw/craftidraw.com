@@ -1,0 +1,35 @@
+{
+    "name": "craftidraw.com",
+    "version": "0.0.1",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "lint:fix": "next lint --fix",
+        "check": "next lint && tsc --noEmit",
+        "preview": "next build && next start",
+        "typecheck": "tsc --noEmit"
+    },
+    "ct3aMetadata": {
+        "initVersion": "7.38.0"
+    },
+    "packageManager": "npm@10.8.1",
+    "dependencies": {
+        "konva": "^9.3.16"
+    },
+    "include": [
+        ".eslintrc.cjs",
+        "next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.cjs",
+        "**/*.js",
+        ".next/types/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

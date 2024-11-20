@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "~/*": ["./src/*", "../../packages/*"]
+        },
+        /* Strictness */
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "checkJs": true,
+        "module": "ESNext"
+    },
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.js"],
+    "exclude": ["node_modules"]
+}
