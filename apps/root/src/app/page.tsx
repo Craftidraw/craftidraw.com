@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import createCUID from '~/lib/cuid/createCUID';
 import { useAppDispatch } from '~/lib/store/hooks';
 import { setBoard, setItems, updateBoard } from '~/lib/store/features/appSlice';
@@ -14,9 +14,10 @@ import LibraryAnchor from '~/components/modal/anchors/LibraryAnchor';
 import CustomExportsAnchor from '~/components/modal/anchors/CustomExportsAnchor';
 import CustomTooltipsAnchor from '~/components/modal/anchors/CustomTooltipsAnchor';
 import type Konva from 'konva';
-
 import dynamic from 'next/dynamic';
 import { StageProvider } from '~/providers/StageProvider';
+import { validateItem } from '~/lib/validate/validateItem';
+import Loader from '~/components/common/Loader';
 
 const Canvas = dynamic(() => import('~/components/canvas/Canvas'), {
     ssr: false,
@@ -25,6 +26,7 @@ const Canvas = dynamic(() => import('~/components/canvas/Canvas'), {
 export default function Home() {
     const stageRef = useRef<Konva.Stage>(null);
     const dispatch = useAppDispatch();
+    const [isPopulated, setIsPopulated] = useState(false);
 
     useEffect(() => {
         const storedBoard = localStorage.getItem('board');
@@ -57,12 +59,22 @@ export default function Home() {
 
         const storedItems = localStorage.getItem('items');
         if (storedItems) {
-            const parsedItems = JSON.parse(storedItems) as Item[];
-            dispatch(setItems(parsedItems));
+            const parsedItems = JSON.parse(storedItems);
+            const validatedItems: Item[] = [];
+            for (const item of parsedItems) {
+                const validatedItem = validateItem(JSON.stringify(item));
+                console.log(validatedItem)
+                if (validatedItem.status) {
+                    validatedItems.push(validatedItem.item!);
+                }
+            }
+            dispatch(setItems(validatedItems));
         } else {
             localStorage.setItem('items', JSON.stringify([]));
             dispatch(setItems([]));
         }
+
+        setIsPopulated(true);
     }, []);
 
     return (
@@ -73,12 +85,12 @@ export default function Home() {
                     <BoardFooter stageRef={stageRef} />
                 </div>
                 <OptionsBar />
-                <Canvas />
+                {isPopulated ? <Canvas /> : <Loader />}
+                <NotificationAnchor />
+                <LibraryAnchor />
+                <CustomExportsAnchor />
+                <CustomTooltipsAnchor />
             </StageProvider>
-            <NotificationAnchor />
-            <LibraryAnchor />
-            <CustomExportsAnchor />
-            <CustomTooltipsAnchor />
         </div>
     );
 }
