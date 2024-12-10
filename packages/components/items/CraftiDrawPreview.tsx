@@ -14,8 +14,8 @@ const CraftiDrawPreview: React.FC<CraftiDrawProps> = ({ item }) => {
             x={item.position.x}
             y={item.position.y}
             points={item.points}
-            stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
-            strokeWidth={item.isStokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
+            stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
+            strokeWidth={item.isStrokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
             itemType={item.type}
             lineCap='round'
             lineJoin='round'

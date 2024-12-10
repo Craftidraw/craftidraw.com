@@ -16,7 +16,7 @@ import CustomTooltipsAnchor from '~/components/modal/anchors/CustomTooltipsAncho
 import type Konva from 'konva';
 import dynamic from 'next/dynamic';
 import { StageProvider } from '~/providers/StageProvider';
-import { validateItem } from '~/lib/validate/validateItem';
+import { fixItem, validateItem } from '~/lib/validate/validateItem';
 import Loader from '~/components/common/Loader';
 
 const Canvas = dynamic(() => import('~/components/canvas/Canvas'), {
@@ -60,15 +60,24 @@ export default function Home() {
         const storedItems = localStorage.getItem('items');
         if (storedItems) {
             const parsedItems = JSON.parse(storedItems);
-            const validatedItems: Item[] = [];
+            const processedItems: Item[] = [];
+
             for (const item of parsedItems) {
-                const validatedItem = validateItem(JSON.stringify(item));
-                console.log(validatedItem)
+                const itemStr = JSON.stringify(item);
+                const validatedItem = validateItem(itemStr);
+
                 if (validatedItem.status) {
-                    validatedItems.push(validatedItem.item!);
+                    processedItems.push(validatedItem.item!);
+                } else {
+                    const fixedItem = fixItem(itemStr);
+                    if (fixedItem) {
+                        processedItems.push(fixedItem);
+                    }
                 }
             }
-            dispatch(setItems(validatedItems));
+
+            localStorage.setItem('items', JSON.stringify(processedItems));
+            dispatch(setItems(processedItems));
         } else {
             localStorage.setItem('items', JSON.stringify([]));
             dispatch(setItems([]));

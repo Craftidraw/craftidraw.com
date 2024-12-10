@@ -38,7 +38,7 @@ const CraftiText: React.FC<CraftiTextProps> = ({ item }) => {
                 textDecoration={item.fontDecoration === 'none' ? '' : item.fontDecoration}
                 fontFamily={item.fontFamily}
                 align={item.textAlign}
-                stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
+                stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
                 fill={item.isFillEnabled && item.fillColor ? item.fillColor : 'transparent'}
                 itemType={item.type}
                 onClick={(e) => selectItem(e, item)}

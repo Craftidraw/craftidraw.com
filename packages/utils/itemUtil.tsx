@@ -35,19 +35,19 @@ export function returnItemElement(item: Item, scalingFactor?: number) {
             textDecoration: (item as TextItem).fontDecoration,
             fill: item.isFillEnabled ? item.fillColor : 'transparent',
             align: (item as TextItem).textAlign,
-            stroke: item.isStokeEnabled ? item.strokeColor : 'transparent',
-            x: item.x * scalingFactor,
-            y: item.y * scalingFactor,
+            stroke: item.isStrokeEnabled ? item.strokeColor : 'transparent',
+            x: (item as TextItem).position.x * scalingFactor,
+            y: (item as TextItem).position.y * scalingFactor,
         });
     } else if (item.type === 'circle') {
         return new Konva.Ellipse({
-            radiusX: ((item as CircleItem).width / 2) * scalingFactor,
-            radiusY: ((item as CircleItem).height / 2) * scalingFactor,
-            offsetY: -((item as CircleItem).height / 2) * scalingFactor,
-            offsetX: -((item as CircleItem).width / 2) * scalingFactor,
-            x: (item as CircleItem).x * scalingFactor,
-            y: (item as CircleItem).y * scalingFactor,
-            stroke: item.isStokeEnabled ? item.strokeColor : 'transparent',
+            radiusX: ((item as CircleItem).size.width / 2) * scalingFactor,
+            radiusY: ((item as CircleItem).size.height / 2) * scalingFactor,
+            offsetY: -((item as CircleItem).size.height / 2) * scalingFactor,
+            offsetX: -((item as CircleItem).size.width / 2) * scalingFactor,
+            x: (item as CircleItem).position.x * scalingFactor,
+            y: (item as CircleItem).position.y * scalingFactor,
+            stroke: item.isStrokeEnabled ? item.strokeColor : 'transparent',
             strokeWidth: (item.strokeWidth ?? 1) * scalingFactor,
             fill: item.isFillEnabled ? item.fillColor : 'transparent',
             dashEnabled: item.strokeStyle !== 'solid',
@@ -58,11 +58,11 @@ export function returnItemElement(item: Item, scalingFactor?: number) {
         });
     } else if (item.type === 'rectangle') {
         return new Konva.Rect({
-            width: (item as RectangleItem).width * scalingFactor,
-            height: (item as RectangleItem).height * scalingFactor,
-            x: (item as RectangleItem).x * scalingFactor,
-            y: (item as RectangleItem).y * scalingFactor,
-            stroke: item.isStokeEnabled ? item.strokeColor : 'transparent',
+            width: (item as RectangleItem).size.width * scalingFactor,
+            height: (item as RectangleItem).size.height * scalingFactor,
+            x: (item as RectangleItem).position.x * scalingFactor,
+            y: (item as RectangleItem).position.y * scalingFactor,
+            stroke: item.isStrokeEnabled ? item.strokeColor : 'transparent',
             strokeWidth: (item.strokeWidth ?? 1) * scalingFactor,
             fill: item.isFillEnabled ? item.fillColor : 'transparent',
             cornerRadius: (item as RectangleItem).borderRadius
@@ -81,17 +81,17 @@ export function returnItemElement(item: Item, scalingFactor?: number) {
             image.src = imageItem.image.data;
             return new Konva.Image({
                 image: image,
-                x: imageItem.x * scalingFactor,
-                y: imageItem.y * scalingFactor,
-                width: imageItem.width * scalingFactor,
-                height: imageItem.height * scalingFactor,
+                x: imageItem.position.x * scalingFactor,
+                y: imageItem.position.y * scalingFactor,
+                width: imageItem.size.width * scalingFactor,
+                height: imageItem.size.height * scalingFactor,
             });
         } else {
             return new Konva.Rect({
-                x: imageItem.x * scalingFactor,
-                y: imageItem.y * scalingFactor,
-                width: imageItem.width * scalingFactor,
-                height: imageItem.height * scalingFactor,
+                x: imageItem.position.x * scalingFactor,
+                y: imageItem.position.y * scalingFactor,
+                width: imageItem.size.width * scalingFactor,
+                height: imageItem.size.height * scalingFactor,
                 fill: 'lightgray',
                 stroke: 'gray',
             });
@@ -99,7 +99,7 @@ export function returnItemElement(item: Item, scalingFactor?: number) {
     } else if (item.type === 'arrow' || item.type === 'line') {
         return new Konva.Arrow({
             points: (item as LineItem).points.map((point) => point * scalingFactor),
-            stroke: item.isStokeEnabled ? item.strokeColor : 'transparent',
+            stroke: item.isStrokeEnabled ? item.strokeColor : 'transparent',
             strokeWidth: (item.strokeWidth ?? 1) * scalingFactor,
             fill: item.isFillEnabled ? item.fillColor : 'transparent',
             lineCap: 'round',
@@ -117,22 +117,22 @@ export function returnItemElement(item: Item, scalingFactor?: number) {
     } else if (item.type === 'diamond') {
         const rectItem = item as RectangleItem;
         const points = [
-            (rectItem.width / 2) * scalingFactor,
+            (rectItem.size.width / 2) * scalingFactor,
             0,
-            rectItem.width * scalingFactor,
-            (rectItem.height / 2) * scalingFactor,
-            (rectItem.width / 2) * scalingFactor,
-            rectItem.height * scalingFactor,
+            rectItem.size.width * scalingFactor,
+            (rectItem.size.height / 2) * scalingFactor,
+            (rectItem.size.width / 2) * scalingFactor,
+            rectItem.size.height * scalingFactor,
             0,
-            (rectItem.height / 2) * scalingFactor,
-            (rectItem.width / 2) * scalingFactor,
+            (rectItem.size.height / 2) * scalingFactor,
+            (rectItem.size.width / 2) * scalingFactor,
             0,
         ];
         return new Konva.Line({
-            x: rectItem.x * scalingFactor,
-            y: rectItem.y * scalingFactor,
+            x: rectItem.position.x * scalingFactor,
+            y: rectItem.position.y * scalingFactor,
             points: points,
-            stroke: item.isStokeEnabled ? item.strokeColor : 'transparent',
+            stroke: item.isStrokeEnabled ? item.strokeColor : 'transparent',
             strokeWidth: (item.strokeWidth ?? 1) * scalingFactor,
             fill: item.isFillEnabled ? item.fillColor : 'transparent',
             lineCap: 'round',

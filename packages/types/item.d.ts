@@ -14,14 +14,14 @@ export interface Item {
     id: string;
     type: string;
     position: Position;
-    opacity?: number;
+    version: number;
 
     isStrokeable: boolean;
     strokeColor?: string;
     strokeOpacity?: number;
     strokeStyle?: string;
     strokeWidth?: number;
-    isStokeEnabled?: boolean;
+    isStrokeEnabled?: boolean;
 
     isFillable: boolean;
     fillColor?: string;

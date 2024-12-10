@@ -18,7 +18,7 @@ const StrokeOption: React.FC<StrokeOptionProps> = ({ item }) => {
                     <Form.Check
                         className='ms-auto'
                         type='switch'
-                        checked={item.isStrokeable ? item.isStokeEnabled : false}
+                        checked={item.isStrokeable ? item.isStrokeEnabled : false}
                         onChange={() => enableStroke(item)}
                     />
                 </div>

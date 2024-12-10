@@ -26,8 +26,8 @@ const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
                         x={item.position.x}
                         y={item.position.y}
                         points={item.points}
-                        stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
-                        strokeWidth={item.isStokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
+                        stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
+                        strokeWidth={item.isStrokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
                         dashEnabled={item.strokeStyle !== 'solid'}
                         dash={item.strokeStyle === 'dashed' ? [15, 15] : [5, 5]}
                         fill={item.isFillEnabled && item.isArrow ? item.fillColor : 'transparent'}
@@ -53,8 +53,8 @@ const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
                         x={item.position.x}
                         y={item.position.y}
                         points={item.points}
-                        stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
-                        strokeWidth={item.isStokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
+                        stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
+                        strokeWidth={item.isStrokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
                         dashEnabled={item.strokeStyle !== 'solid'}
                         dash={item.strokeStyle === 'dashed' ? [15, 15] : [5, 5]}
                         itemType={item.type}

@@ -32,7 +32,7 @@ const TooltipSchema = z.object({
     strokeColor: z.string().optional(),
     strokeStyle: z.string().optional(),
     strokeWidth: z.number().optional(),
-    isStokeEnabled: z.boolean().optional(),
+    isStrokeEnabled: z.boolean().optional(),
     fillColor: z.string().optional(),
     isFillEnabled: z.boolean().optional()
 });
@@ -42,7 +42,7 @@ const StrokePropertiesSchema = z.object({
     strokeOpacity: z.number().optional(),
     strokeWidth: z.number().optional(),
     strokeStyle: z.string().optional(),
-    isStokeEnabled: z.boolean().optional()
+    isStrokeEnabled: z.boolean().optional()
 });
 
 const FillPropertiesSchema = z.object({
@@ -59,7 +59,7 @@ const BaseItemSchema = z.object({
     id: z.string(),
     type: z.string(),
     position: PositionSchema,
-    opacity: z.number().optional(),
+    version: z.number(),
     isStrokeable: z.boolean(),
     isFillable: z.boolean(),
     attachments: z.array(AttachmentSchema).optional()
@@ -187,23 +187,41 @@ export const validateItem = (itemStr: string): ValidationResult => {
 export const fixItem = (itemStr: string): Item | false => {
     try {
         const parsed = JSON.parse(itemStr);
+        
+        const propertyMigrations: Record<string, { path: string[], transform?: (value: any) => any }> = {
+            x: { path: ['position', 'x'] },
+            y: { path: ['position', 'y'] },
+            width: { path: ['size', 'width'] },
+            height: { path: ['size', 'height'] },
+            strokeEnabled: { path: ['isStrokeEnabled'] },
+            fillEnabled: { path: ['isFillEnabled'] },
+        };
 
-        // Handle legacy x,y properties
-        if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
-            parsed.position = { x: parsed.x, y: parsed.y };
-            delete parsed.x;
-            delete parsed.y;
-        }
+        const setNestedProperty = (obj: any, path: string[], value: any) => {
+            const lastKey = path[path.length - 1];
+            let current = obj;
+            
+            for (let i = 0; i < path.length - 1; i++) {
+                const key = path[i];
+                if (!current[key]) {
+                    current[key] = {};
+                }
+                current = current[key];
+            }
+            
+            current[lastKey] = value;
+        };
 
-        // Handle legacy width,height properties
-        if (typeof parsed.width === 'number' && typeof parsed.height === 'number') {
-            parsed.size = { width: parsed.width, height: parsed.height };
-            delete parsed.width;
-            delete parsed.height;
-        }
+        Object.entries(propertyMigrations).forEach(([oldKey, { path, transform }]) => {
+            if (oldKey in parsed) {
+                const value = transform ? transform(parsed[oldKey]) : parsed[oldKey];
+                setNestedProperty(parsed, path, value);
+                delete parsed[oldKey];
+            }
+        });
 
         const defaultValues = {
-            opacity: 1,
+            version: 1,
             isStrokeable: true,
             isFillable: true,
             attachments: [],
@@ -211,7 +229,7 @@ export const fixItem = (itemStr: string): Item | false => {
             strokeOpacity: 1,
             strokeWidth: 2,
             strokeStyle: 'solid',
-            isStokeEnabled: true,
+            isStrokeEnabled: true,
             fillColor: '#ffffff',
             fillOpacity: 1,
             isFillEnabled: false,
@@ -254,11 +272,24 @@ export const fixItem = (itemStr: string): Item | false => {
             }
         };
 
-        const itemWithDefaults = {
-            ...defaultValues,
-            ...parsed,
-            ...(typeSpecificDefaults[parsed.type as keyof typeof typeSpecificDefaults] || {})
+        const deepMerge = (target: any, source: any) => {
+            Object.keys(source).forEach(key => {
+                if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                    if (!target[key]) target[key] = {};
+                    deepMerge(target[key], source[key]);
+                } else {
+                    if (target[key] === undefined || target[key] === null) {
+                        target[key] = source[key];
+                    }
+                }
+            });
+            return target;
         };
+
+        const typeDefaults = typeSpecificDefaults[parsed.type as keyof typeof typeSpecificDefaults] || {};
+        const itemWithTypeDefaults = deepMerge(parsed, typeDefaults);
+
+        const itemWithDefaults = deepMerge(itemWithTypeDefaults, defaultValues);
 
         const result = ItemSchema.safeParse(itemWithDefaults);
         return result.success ? result.data as Item : false;

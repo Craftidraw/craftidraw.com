@@ -61,14 +61,15 @@ export const useItem = () => {
 
     const updateItem = useCallback(
         (current: Item, previous?: Item) => {
-            dispatch(setItem(current));
-            dispatch(setSelectedItem(current));
+            const newItem = { ...current, version: current.version + 1 };
+            dispatch(setItem(newItem));
+            dispatch(setSelectedItem(newItem));
             if (previous) {
                 dispatch(
                     addToHistory({
                         type: 'update',
                         previousSnapshot: { ...previous },
-                        currentSnapshot: { ...current },
+                        currentSnapshot: { ...newItem },
                     } as HistoryAction),
                 );
             }
@@ -235,6 +236,7 @@ export const useItem = () => {
                 position: snappedPosition,
             };
             dispatch(setItem(updatedItem));
+            dispatch(setSelectedItem(updatedItem));
 
             if (!preparedActionRef.current) return;
             const action: HistoryAction = {
@@ -410,6 +412,7 @@ export const useItem = () => {
                 },
             } as RectangleItem | CircleItem | CustomItem | TextItem | ImageItem;
             dispatch(setItem(updatedItem));
+            dispatch(setSelectedItem(updatedItem));
 
             if (!preparedActionRef.current) return;
             const action: HistoryAction = {
