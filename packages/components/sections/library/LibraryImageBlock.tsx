@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import MinecraftIcons from '../../ui/MinecraftIcons';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
@@ -54,20 +54,19 @@ const LibraryImageBlock: React.FC = () => {
         };
     }, [selectedLibraryImage]);
 
-    const handleImageSelect = () => {
-        if (!selectedLibraryImage) return;
-        if (!selectedItem) return;
+    const handleImageSelect = useCallback(() => {
+        if (!selectedLibraryImage || !selectedItem) return;
         if (selectedItem.type !== 'image' && selectedItem.type !== 'custom') return;
 
-        const item = {
+        const updatedItem = {
             ...selectedItem,
             image: selectedLibraryImage,
         } as ImageItem | CustomItem;
 
-        updateItem(item);
+        updateItem(updatedItem, { ...selectedItem });
         setSelectedLibraryImage(null);
         dispatch(setIsLibraryOpen(false));
-    };
+    }, [dispatch, selectedItem, selectedLibraryImage, updateItem]);
 
     const handleImageDelete = async () => {
         if (!selectedLibraryImage) return;
