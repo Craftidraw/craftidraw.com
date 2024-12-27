@@ -23,7 +23,7 @@ import { useItem } from '~/hooks/useItem';
 import ToggleTooltipOption from '../options/ToggleTooltipOption';
 import ItemTooltipInput from './item/ItemTooltipInput';
 import { debounce } from 'lodash';
-import { setIsCustomTooltipsOpen } from '~/lib/store/features/appSlice';
+import { selectItemById, setIsCustomTooltipsOpen } from '~/lib/store/features/appSlice';
 import Image from 'next/image';
 import InputGroupWrapper from '~/components/common/InputGroupWrapper';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
@@ -32,13 +32,10 @@ const OptionsBar: React.FC = () => {
     const dispatch = useAppDispatch();
     const { updateItem } = useItem();
     const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
-
-    const [alteredEntityText, setAlteredEntityText] = useState<string>();
-
-    useEffect(() => {
-        if (selectedItem?.type !== 'custom') return;
-        setAlteredEntityText((selectedItem as CustomItem).entity);
-    }, []);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem?.id ?? ''));
+    const [alteredEntityText, setAlteredEntityText] = useState<string>(
+        selectedItem?.type === 'custom' ? (selectedItem as CustomItem).entity : '',
+    );
 
     const debounceEntityChange = useCallback(
         debounce((item: Item, text: string) => {
@@ -78,13 +75,13 @@ const OptionsBar: React.FC = () => {
 
     return (
         <>
-            {selectedItem && (
+            {currentItem && (
                 <>
-                    {selectedItem.type === 'custom' && (
+                    {currentItem.type === 'custom' && (
                         <Form className='options-bar-container'>
                             <div className='d-flex'>
                                 <Form.Label>Custom Item</Form.Label>
-                                {(selectedItem as CustomItem)?.image && (
+                                {(currentItem as CustomItem)?.image && (
                                     <div
                                         className='ms-auto'
                                         style={{
@@ -94,7 +91,7 @@ const OptionsBar: React.FC = () => {
                                         }}
                                     >
                                         <Image
-                                            src={(selectedItem as CustomItem)?.image?.data ?? ''}
+                                            src={(currentItem as CustomItem)?.image?.data ?? ''}
                                             alt='Item'
                                             width={26}
                                             height={26}
@@ -104,14 +101,14 @@ const OptionsBar: React.FC = () => {
                             </div>
                             <hr className='options-hr' />
                             <Form.Group className='d-flex flex-column'>
-                                <ToggleTooltipOption item={selectedItem} />
+                                <ToggleTooltipOption item={currentItem} />
                                 <div className='d-flex flex-column'>
                                     <Form.Label>Tooltip</Form.Label>
                                     <InputGroup>
                                         <Form.Control
                                             type='text'
                                             size='sm'
-                                            value={(selectedItem as CustomItem).tooltipSettings?.name ?? 'Not set'}
+                                            value={(currentItem as CustomItem).tooltipSettings?.name ?? 'Not set'}
                                             disabled={true}
                                         />
                                         <Button
@@ -134,7 +131,7 @@ const OptionsBar: React.FC = () => {
                                             value={alteredEntityText}
                                             onChange={(e) => {
                                                 setAlteredEntityText(e.target.value);
-                                                debounceEntityChange(selectedItem, e.target.value);
+                                                debounceEntityChange(currentItem, e.target.value);
                                             }}
                                         />
                                     </div>
@@ -144,7 +141,7 @@ const OptionsBar: React.FC = () => {
                                     <InputGroup size='sm'>
                                         <ItemTooltipInput
                                             key={'display-input'}
-                                            item={selectedItem as CustomItem}
+                                            item={currentItem as CustomItem}
                                             index={0}
                                             type='display'
                                         />
@@ -156,45 +153,45 @@ const OptionsBar: React.FC = () => {
                                         <Button
                                             className='ms-auto my-2'
                                             variant='primary'
-                                            onClick={() => handleLoreAdd(selectedItem)}
+                                            onClick={() => handleLoreAdd(currentItem)}
                                         >
                                             Add Line
                                         </Button>
                                     </div>
                                     <InputGroupWrapper>
-                                        {handleLoreFields(selectedItem)?.length ? (
-                                            handleLoreFields(selectedItem)
+                                        {handleLoreFields(currentItem)?.length ? (
+                                            handleLoreFields(currentItem)
                                         ) : (
                                             <p className='text-muted my-1'>No lore found.</p>
                                         )}
                                     </InputGroupWrapper>
                                 </div>
-                                <ImageOption item={selectedItem} />
+                                <ImageOption item={currentItem} />
                             </Form.Group>
                         </Form>
                     )}
-                    {selectedItem.type !== 'custom' && (
+                    {currentItem.type !== 'custom' && (
                         <Form className='options-bar-container d-flex flex-column'>
                             <Form.Label>
-                                {selectedItem.type.charAt(0).toUpperCase() + selectedItem.type.slice(1)}
+                                {currentItem.type.charAt(0).toUpperCase() + currentItem.type.slice(1)}
                             </Form.Label>
                             <hr className='options-hr' />
                             <Form.Group className='d-flex flex-column'>
-                                <StrokeOption item={selectedItem} />
-                                <FillOption item={selectedItem} />
-                                <StrokeColorOption item={selectedItem} />
-                                <FillColorOption item={selectedItem} />
-                                <TextOption item={selectedItem} />
-                                <StrokeStyleOption item={selectedItem} />
-                                <StrokeWidthOption item={selectedItem} />
-                                <BorderCurveOption item={selectedItem} />
-                                <FontSizeOption item={selectedItem} />
-                                <FontFamilyOption item={selectedItem} />
-                                <FontEffectOption item={selectedItem} />
-                                <FontDecorationOption item={selectedItem} />
-                                <TextAlignOption item={selectedItem} />
-                                <ArrowHeadOption item={selectedItem} />
-                                <ImageOption item={selectedItem} />
+                                <StrokeOption item={currentItem} />
+                                <FillOption item={currentItem} />
+                                <StrokeColorOption item={currentItem} />
+                                <FillColorOption item={currentItem} />
+                                <TextOption item={currentItem} />
+                                <StrokeStyleOption item={currentItem} />
+                                <StrokeWidthOption item={currentItem} />
+                                <BorderCurveOption item={currentItem} />
+                                <FontSizeOption item={currentItem} />
+                                <FontFamilyOption item={currentItem} />
+                                <FontEffectOption item={currentItem} />
+                                <FontDecorationOption item={currentItem} />
+                                <TextAlignOption item={currentItem} />
+                                <ArrowHeadOption item={currentItem} />
+                                <ImageOption item={currentItem} />
                             </Form.Group>
                         </Form>
                     )}
