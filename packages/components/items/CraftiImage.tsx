@@ -42,11 +42,6 @@ const CraftiImage: React.FC<CraftiImageProps> = ({ item }) => {
                     y={item.position.y}
                     width={item.size.width}
                     height={item.size.height}
-                    stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
-                    strokeWidth={item.isStrokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
-                    dashEnabled={item.strokeStyle !== 'solid'}
-                    dash={item.strokeStyle === 'dashed' ? [15, 15] : [5, 5]}
-                    cornerRadius={item.borderRadius ? item.borderRadius : 0}
                     image={image}
                     onClick={(e) => selectItem(e, item)}
                     onTransformStart={() => transformItemStart(item)}

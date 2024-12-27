@@ -13,14 +13,12 @@ interface CraftiLineProps {
 const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
     const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } = useItem();
-    const lineRef = React.useRef<Konva.Line | Konva.Arrow>(null);
 
     return (
         <>
             {item.hasArrowHead || item.hasArrowTail ? (
                 <>
                     <Arrow
-                        ref={lineRef as React.RefObject<Konva.Arrow>}
                         key={item.id}
                         id={item.id}
                         x={item.position.x}
@@ -47,7 +45,6 @@ const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
             ) : (
                 <>
                     <Line
-                        ref={lineRef}
                         key={item.id}
                         id={item.id}
                         x={item.position.x}

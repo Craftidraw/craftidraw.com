@@ -2,24 +2,36 @@
 
 import React, { useEffect, useState } from 'react';
 import { Stage } from 'react-konva';
-import { addItem, addToHistory, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
+import { addItem, addToHistory, selectAllItems, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
 import type Konva from 'konva';
 import GridLayer from './GridLayer';
 import ItemLayer from './ItemLayer';
-import type { Item, CircleItem, LineItem, RectangleItem, TextItem, DrawItem, ImageItem, CustomItem } from '~/types/item';
+import type {
+    Item,
+    CircleItem,
+    LineItem,
+    RectangleItem,
+    TextItem,
+    DrawItem,
+    ImageItem,
+    CustomItem,
+} from '~/types/item';
 import type { RootState } from '~/lib/store/store';
 import createCUID from '~/lib/cuid/createCUID';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 import { useZoom } from '~/hooks/useZoom';
 import { useShortcut } from '~/hooks/useShortcut';
 import { useStage } from '~/providers/StageProvider';
+import { useItem } from '~/hooks/useItem';
 
 const Canvas = () => {
     const dispatch = useAppDispatch();
     const { useKeyPress, useKeyRelease, cut, paste, redo, copy, remove, undo, quickMoveUp, quickMoveDown } =
         useShortcut();
     const { stageRef, transformerRef } = useStage();
+    const { handleItemSave } = useItem();
 
+    const items = useAppSelector(selectAllItems);
     const selectedTool = useAppSelector((state: RootState) => state.app.selectedTool);
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const board = useAppSelector((state: RootState) => state.app.board);
@@ -37,7 +49,7 @@ const Canvas = () => {
                 } else {
                     transformerRef.current?.nodes([]);
                 }
-            }, 0);
+            }, 10);
         } else {
             transformerRef.current?.nodes([]);
         }
@@ -114,7 +126,7 @@ const Canvas = () => {
             if (selectedTool === 'rectangle') {
                 setIsDrawing(true);
                 const newItem: RectangleItem = {
-                    isFillable: true, 
+                    isFillable: true,
                     isStrokeable: true,
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
@@ -130,13 +142,13 @@ const Canvas = () => {
                     fillOpacity: 1,
                     isStrokeEnabled: true,
                     isFillEnabled: false,
-                    type: 'rectangle'
+                    type: 'rectangle',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'diamond') {
                 setIsDrawing(true);
                 const newItem: RectangleItem = {
-                    isFillable: true, 
+                    isFillable: true,
                     isStrokeable: true,
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
@@ -184,7 +196,7 @@ const Canvas = () => {
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
-                    text: '',
+                    text: 'New Text',
                     type: 'text',
                     version: 1,
                     attachments: [],
@@ -192,10 +204,10 @@ const Canvas = () => {
                     strokeOpacity: 1,
                     strokeWidth: 1,
                     strokeStyle: 'solid',
-                    fillColor: '#ffffff',
+                    fillColor: '#000000',
                     fillOpacity: 1,
-                    isStrokeEnabled: true,
-                    isFillEnabled: false,
+                    isStrokeEnabled: false,
+                    isFillEnabled: true,
                     textAlign: 'center',
                     fontSize: 16,
                     fontFamily: 'Arial',
@@ -208,13 +220,13 @@ const Canvas = () => {
                 const newItem: LineItem = {
                     isFillable: true,
                     isStrokeable: true,
-                    points: [],
+                    points: [pos.x, pos.y, pos.x, pos.y],
                     isArrow: false,
                     hasArrowTail: false,
                     hasArrowHead: false,
                     id: createCUID(),
                     type: 'line',
-                    position: { x: pos.x, y: pos.y },
+                    position: { x: 0, y: 0 },
                     version: 1,
                     attachments: [],
                     strokeColor: '#000000',
@@ -222,9 +234,9 @@ const Canvas = () => {
                     strokeStyle: 'solid',
                     strokeWidth: 1,
                     isStrokeEnabled: true,
-                    fillColor: '#ffffff',
+                    fillColor: '#000000',
                     fillOpacity: 1,
-                    isFillEnabled: false,
+                    isFillEnabled: true,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'arrow') {
@@ -233,12 +245,12 @@ const Canvas = () => {
                     isFillable: true,
                     isStrokeable: true,
                     isArrow: true,
-                    points: [],
+                    points: [pos.x, pos.y, pos.x, pos.y],
                     hasArrowTail: false,
                     hasArrowHead: true,
                     id: createCUID(),
                     type: 'arrow',
-                    position: { x: pos.x, y: pos.y },
+                    position: { x: 0, y: 0 },
                     version: 1,
                     attachments: [],
                     strokeColor: '#000000',
@@ -246,9 +258,9 @@ const Canvas = () => {
                     strokeStyle: 'solid',
                     strokeWidth: 1,
                     isStrokeEnabled: true,
-                    fillColor: '#ffffff',
+                    fillColor: '#000000',
                     fillOpacity: 1,
-                    isFillEnabled: false,
+                    isFillEnabled: true,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'image') {
@@ -261,16 +273,16 @@ const Canvas = () => {
                     version: 1,
                     attachments: [],
                     isStrokeable: false,
-                    isFillable: false
-                }
+                    isFillable: false,
+                };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'draw') {
                 setIsDrawing(true);
                 const newItem: DrawItem = {
-                    points: [],
+                    points: [pos.x, pos.y, pos.x, pos.y],
                     id: createCUID(),
                     type: 'draw',
-                    position: { x: pos.x, y: pos.y },
+                    position: { x: 0, y: 0 },
                     size: { width: 0, height: 0 },
                     version: 1,
                     attachments: [],
@@ -279,9 +291,9 @@ const Canvas = () => {
                     strokeStyle: 'solid',
                     strokeWidth: 1,
                     isStrokeEnabled: true,
-                    fillColor: '#ffffff',
+                    fillColor: '#000000',
                     fillOpacity: 1,
-                    isFillEnabled: false,
+                    isFillEnabled: true,
                     isStrokeable: true,
                     isFillable: true,
                 };
@@ -296,11 +308,15 @@ const Canvas = () => {
                     version: 1,
                     attachments: [],
                     entity: 'New-Entity',
+                    displayName: {
+                        text: 'New-Entity',
+                        fontSize: 14,
+                    },
                     lore: [],
                     showTooltip: false,
                     isStrokeable: false,
-                    isFillable: false
-                }
+                    isFillable: false,
+                };
                 setPreviewItem(newItem);
             }
         }
@@ -335,15 +351,10 @@ const Canvas = () => {
                     } as ImageItem);
                     break;
                 case 'line':
-                case 'arrow':   
+                case 'arrow':
                     setPreviewItem({
                         ...previewItem,
-                        points: [
-                            (previewItem as LineItem).points[0]!,
-                            (previewItem as LineItem).points[1]!,
-                            x,
-                            y,
-                        ],
+                        points: [(previewItem as LineItem).points[0]!, (previewItem as LineItem).points[1]!, x, y],
                     } as LineItem);
                     break;
                 case 'draw':
@@ -367,10 +378,10 @@ const Canvas = () => {
             dispatch(
                 addToHistory({
                     type: 'create',
-                    currentSnapshot: { ...previewItem },
+                    currentSnapshots: [{ ...previewItem }],
                 }),
             );
-            //requestItemSave();
+            handleItemSave([...items, previewItem]);
             setPreviewItem(null);
         }
     };
