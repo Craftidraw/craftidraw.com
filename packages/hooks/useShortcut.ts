@@ -13,6 +13,7 @@ import {
     setPreviousTool,
     setSelectedTool,
     deleteItem as deleteLocalItem,
+    deleteItems,
     setSelectedItem,
     setCopiedItem,
     addItem,
@@ -21,10 +22,13 @@ import {
     addNotification,
     setBoard,
     setIsSaved,
+    setItems,
+    addItems,
 } from '~/lib/store/features/appSlice';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
 import createCUID from '~/lib/cuid/createCUID';
 import { useStorage } from '~/providers/StorageProvider';
+import { useItem } from './useItem';
 
 export function useShortcut() {
     const dispatch = useAppDispatch();
@@ -37,7 +41,8 @@ export function useShortcut() {
         saveTooltipConfiguration,
         getExportConfiguration,
     } = useIndexedDB();
-    const { type, requestItemSave, markForDeletion, unmarkForDeletion } = useStorage();
+    const { handleItemSave } = useItem();
+    const { type, markForDeletion, unmarkForDeletion } = useStorage();
     const { requestConfirmation } = useConfirmation();
 
     const board = useAppSelector((state: RootState) => state.app.board);
@@ -91,19 +96,6 @@ export function useShortcut() {
         }, [targetKey, handler]);
     }
 
-    const handleItemChange = useCallback(() => {
-        dispatch(setIsSaved('pending'));
-
-        requestItemSave(items, (success: boolean) => {
-            if (success) {
-                dispatch(setIsSaved('saved'));
-            } else {
-                console.error('Failed to save items');
-                dispatch(setIsSaved('failure'));
-            }
-        });
-    }, [items, dispatch]);
-
     // Tool
 
     function quickMoveDown() {
@@ -124,13 +116,13 @@ export function useShortcut() {
         dispatch(
             addToHistory({
                 type: 'delete',
-                previousSnapshot: selectedItem,
+                previousSnapshots: [selectedItem],
             }),
         );
         if (type === 'cloud') markForDeletion(selectedItem.id);
         dispatch(deleteLocalItem(selectedItem.id));
         dispatch(setSelectedItem(null));
-        handleItemChange();
+        handleItemSave(items.filter((item) => item.id !== selectedItem.id));
     }
 
     function copy() {
@@ -144,7 +136,7 @@ export function useShortcut() {
         if (type === 'cloud') markForDeletion(selectedItem.id);
         dispatch(deleteLocalItem(selectedItem.id));
         dispatch(setSelectedItem(null));
-        handleItemChange();
+        handleItemSave(items.filter((item) => item.id !== selectedItem.id));
     }
 
     function paste() {
@@ -155,56 +147,115 @@ export function useShortcut() {
         dispatch(
             addToHistory({
                 type: 'create',
-                currentSnapshot: { ...newItem },
+                currentSnapshots: [{ ...newItem }],
             } as HistoryAction),
         );
+        handleItemSave([...items, newItem]);
     }
 
-    async function undo() {
-        if (history.index >= 0) {
-            const action = history.actions[history.index];
-            if (!action) return;
-            if (action.type === 'create') {
-                if (!action.currentSnapshot) return;
-                if (type === 'cloud') markForDeletion(action.currentSnapshot.id);
-                dispatch(deleteLocalItem(action.currentSnapshot.id));
-            } else if (action.type === 'update') {
-                if (!action.previousSnapshot) return;
-                dispatch(setItem(action.previousSnapshot));
-                dispatch(setSelectedItem(action.previousSnapshot));
-            } else if (action.type === 'delete') {
-                if (!action.previousSnapshot) return;
-                if (type === 'cloud') unmarkForDeletion(action.previousSnapshot.id);
-                dispatch(addItem(action.previousSnapshot));
-                dispatch(setSelectedItem(action.previousSnapshot));
-            }
-            dispatch(setHistoryIndex(history.index - 1));
-            handleItemChange();
+    const undo = useCallback(async () => {
+        if (history.index < 0) return;
+
+        const action = history.actions[history.index];
+        if (!action) return;
+
+        const snapshots = action.type === 'create' ? action.currentSnapshots : action.previousSnapshots;
+        if (!snapshots?.length) return;
+
+        const updatedItems = await processUndoItems(snapshots, action.type, items);
+
+        dispatch(setHistoryIndex(history.index - 1));
+        handleItemSave(updatedItems);
+    }, [history, dispatch, handleItemSave, items]);
+
+    const redo = useCallback(async () => {
+        if (history.index >= history.actions.length - 1) return;
+
+        const nextIndex = history.index + 1;
+        const action = history.actions[nextIndex];
+        if (!action) return;
+
+        const snapshots = action.type === 'delete' ? action.previousSnapshots : action.currentSnapshots;
+        if (!snapshots?.length) return;
+
+        const updatedItems = await processRedoAction(snapshots, action.type, items);
+
+        dispatch(setHistoryIndex(nextIndex));
+        handleItemSave(updatedItems);
+    }, [history, dispatch, handleItemSave, items]);
+
+    async function processUndoItems(
+        snapshots: Item[],
+        actionType: 'create' | 'update' | 'delete',
+        currentItems: Item[],
+    ): Promise<Item[]> {
+        let updatedItems = [...currentItems];
+
+        switch (actionType) {
+            case 'create':
+                if (type === 'cloud') {
+                    snapshots.forEach((item) => markForDeletion(item.id));
+                }
+                const createItemIds = snapshots.map((item) => item.id);
+                updatedItems = updatedItems.filter((item) => !createItemIds.includes(item.id));
+                dispatch(deleteItems(createItemIds));
+                break;
+
+            case 'update':
+                updatedItems = updatedItems.map((item) => {
+                    const snapshot = snapshots.find((s) => s.id === item.id);
+                    return snapshot ?? item;
+                });
+                dispatch(setItems(updatedItems));
+                break;
+
+            case 'delete':
+                if (type === 'cloud') {
+                    snapshots.forEach((item) => unmarkForDeletion(item.id));
+                }
+                updatedItems = [...updatedItems, ...snapshots];
+                dispatch(addItems(snapshots));
+                break;
         }
+
+        return updatedItems;
     }
 
-    async function redo() {
-        if (history.index < history.actions.length - 1) {
-            const nextIndex = history.index + 1;
-            const action = history.actions[nextIndex];
-            if (!action) return;
-            if (action.type === 'create') {
-                if (!action.currentSnapshot) return;
-                if (type === 'cloud') unmarkForDeletion(action.currentSnapshot.id);
-                dispatch(addItem(action.currentSnapshot));
-                dispatch(setSelectedItem(action.currentSnapshot));
-            } else if (action.type === 'update') {
-                if (!action.currentSnapshot) return;
-                dispatch(setItem(action.currentSnapshot));
-                dispatch(setSelectedItem(action.currentSnapshot));
-            } else if (action.type === 'delete') {
-                if (!action.previousSnapshot) return;
-                if (type === 'cloud') markForDeletion(action.previousSnapshot.id);
-                dispatch(deleteLocalItem(action.previousSnapshot.id));
-            }
-            dispatch(setHistoryIndex(nextIndex));
-            handleItemChange();
+    async function processRedoAction(
+        snapshots: Item[],
+        actionType: 'create' | 'update' | 'delete',
+        currentItems: Item[],
+    ): Promise<Item[]> {
+        let updatedItems = [...currentItems];
+
+        switch (actionType) {
+            case 'create':
+                if (type === 'cloud') {
+                    snapshots.forEach((item) => unmarkForDeletion(item.id));
+                }
+                updatedItems = [...updatedItems, ...snapshots];
+                dispatch(addItems(snapshots));
+                break;
+
+            case 'update':
+                updatedItems = updatedItems.map((item) => {
+                    const snapshot = snapshots.find((s) => s.id === item.id);
+                    return snapshot ?? item;
+                });
+                dispatch(setItems(updatedItems));
+                break;
+
+            case 'delete':
+                if (type === 'cloud') {
+                    snapshots.forEach((item) => markForDeletion(item.id));
+                }
+                const itemIds = snapshots.map((item) => item.id);
+                updatedItems = updatedItems.filter((item) => !itemIds.includes(item.id));
+                dispatch(deleteItems(itemIds));
+                break;
         }
+
+        return updatedItems;
     }
 
     // File
