@@ -1,11 +1,10 @@
 import { Dropdown, DropdownButton } from 'react-bootstrap';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 
 const NavbarGeneralDropdown: React.FC = () => {
     const navigate = useRouter();
-    const { data: session } = useSession();
+    // const { data: session } = useSession();
 
     return (
         <DropdownButton variant='empty' title='General'>

@@ -87,7 +87,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
 
         parts.forEach((part, index) => {
             if (minecraftColorRegex.test(part)) {
-                currentColor = minecraftColorMap[part];
+                currentColor = minecraftColorMap[part] ?? '#FFFFFF';
             } else if (hexColorRegex.test(part)) {
                 currentColor = part;
             } else if (part) {
@@ -123,7 +123,11 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     alignItems: 'center',
                 }}
             >
-                {elements}
+                {elements.map((element) => (
+                    <>
+                        {element}
+                    </>
+                ))}
             </div>
         );
     };
@@ -200,10 +204,6 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     y={item.position.y}
                     width={item.size.width}
                     height={item.size.height}
-                    stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
-                    strokeWidth={item.isStokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
-                    dashEnabled={item.strokeStyle !== 'solid'}
-                    dash={item.strokeStyle === 'dashed' ? [15, 15] : [5, 5]}
                     image={image}
                     onDragMove={handleItemDrag}
                     onTransform={handleDuringTransform}
@@ -240,7 +240,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     draggable={selectedItem?.id === item.id}
                 />
             )}
-            {(item.showTooltip ?? showTooltip) && item.tooltipSettings && tooltipLocation.x && (
+            {(item.showTooltip ?? showTooltip) && item.tooltipSettings?.tooltip && tooltipLocation.x && (
                 <Html
                     groupProps={{ offsetX: -tooltipLocation.x, offsetY: -tooltipLocation.y }}
                     divProps={{ className: 'd-flex tooltip-box', style: {} }}

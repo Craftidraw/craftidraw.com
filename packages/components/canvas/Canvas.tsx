@@ -2,20 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { Stage } from 'react-konva';
-import { addItem, addToHistory, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
+import { addItem, addToHistory, selectAllItems, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
 import type Konva from 'konva';
 import GridLayer from './GridLayer';
 import ItemLayer from './ItemLayer';
 import type {
-    CircleItem,
-    CustomItem,
-    DrawItem,
-    ImageItem,
     Item,
+    CircleItem,
     LineItem,
     RectangleItem,
     TextItem,
-    TooltipLine,
+    DrawItem,
+    ImageItem,
+    CustomItem,
 } from '~/types/item';
 import type { RootState } from '~/lib/store/store';
 import createCUID from '~/lib/cuid/createCUID';
@@ -23,15 +22,18 @@ import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 import { useZoom } from '~/hooks/useZoom';
 import { useShortcut } from '~/hooks/useShortcut';
 import { useStage } from '~/providers/StageProvider';
+import { useItem } from '~/hooks/useItem';
 
 const Canvas = () => {
     const dispatch = useAppDispatch();
     const { useKeyPress, useKeyRelease, cut, paste, redo, copy, remove, undo, quickMoveUp, quickMoveDown } =
         useShortcut();
     const { stageRef, transformerRef } = useStage();
+    const { handleItemSave } = useItem();
 
+    const items = useAppSelector(selectAllItems);
     const selectedTool = useAppSelector((state: RootState) => state.app.selectedTool);
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const board = useAppSelector((state: RootState) => state.app.board);
     const isCustomExportsOpen = useAppSelector((state: RootState) => state.app.isCustomExportsOpen);
 
@@ -39,18 +41,19 @@ const Canvas = () => {
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
     useEffect(() => {
-        if (selectedItem && transformerRef.current) {
-            const stage = transformerRef.current.getStage();
-            const selectedNode = stage?.findOne('#' + selectedItem.id);
-            if (selectedNode) {
-                transformerRef.current.nodes([selectedNode]);
-            } else {
-                transformerRef.current.nodes([]);
-            }
+        if (selectedItem && transformerRef.current && stageRef.current) {
+            setTimeout(() => {
+                const selectedNode = stageRef.current?.findOne('#' + selectedItem.id);
+                if (selectedNode) {
+                    transformerRef.current?.nodes([selectedNode]);
+                } else {
+                    transformerRef.current?.nodes([]);
+                }
+            }, 10);
         } else {
             transformerRef.current?.nodes([]);
         }
-    }, [selectedItem]);
+    }, [selectedItem, stageRef, transformerRef, selectedItem?.version]);
 
     useKeyPress(' ', () => {
         if (isCustomExportsOpen) return;
@@ -123,146 +126,196 @@ const Canvas = () => {
             if (selectedTool === 'rectangle') {
                 setIsDrawing(true);
                 const newItem: RectangleItem = {
+                    isFillable: true,
+                    isStrokeable: true,
                     id: createCUID(),
-                    type: 'rectangle',
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
-                    isStrokeable: true,
-                    isStokeEnabled: true,
+                    borderRadius: 0,
                     strokeColor: '#000000',
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
                     strokeStyle: 'solid',
-                    isFillable: true,
-                    fillColor: '#000000',
+                    version: 1,
+                    attachments: [],
+                    fillColor: '#ffffff',
+                    fillOpacity: 1,
+                    isStrokeEnabled: true,
+                    isFillEnabled: false,
+                    type: 'rectangle',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'diamond') {
                 setIsDrawing(true);
                 const newItem: RectangleItem = {
+                    isFillable: true,
+                    isStrokeable: true,
                     id: createCUID(),
-                    type: 'diamond',
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
-                    isStrokeable: true,
-                    isStokeEnabled: true,
+                    borderRadius: 0,
                     strokeColor: '#000000',
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
                     strokeStyle: 'solid',
-                    isFillable: true,
-                    fillColor: '#000000',
+                    version: 1,
+                    attachments: [],
+                    fillColor: '#ffffff',
+                    fillOpacity: 1,
+                    isStrokeEnabled: true,
+                    isFillEnabled: false,
+                    type: 'diamond',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'circle') {
                 setIsDrawing(true);
                 const newItem: CircleItem = {
+                    isFillable: true,
+                    isStrokeable: true,
                     id: createCUID(),
-                    type: 'circle',
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
-                    isStrokeable: true,
-                    isStokeEnabled: true,
-                    strokeStyle: 'solid',
                     strokeColor: '#000000',
-                    isFillable: true,
-                    fillColor: '#000000',
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
+                    strokeStyle: 'solid',
+                    version: 1,
+                    attachments: [],
+                    fillColor: '#ffffff',
+                    fillOpacity: 1,
+                    isStrokeEnabled: true,
+                    isFillEnabled: false,
+                    type: 'circle',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'text') {
                 setIsDrawing(true);
                 const newItem: TextItem = {
+                    isFillable: true,
+                    isStrokeable: true,
                     id: createCUID(),
-                    type: 'text',
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
                     text: 'New Text',
-                    fontEffect: 'normal',
-                    isStrokeable: true,
-                    isStokeEnabled: false,
+                    type: 'text',
+                    version: 1,
+                    attachments: [],
                     strokeColor: '#000000',
-                    isFillable: true,
-                    isFillEnabled: true,
+                    strokeOpacity: 1,
+                    strokeWidth: 1,
+                    strokeStyle: 'solid',
                     fillColor: '#000000',
-                    textAlign: 'left',
-                    fontSize: 18,
+                    fillOpacity: 1,
+                    isStrokeEnabled: false,
+                    isFillEnabled: true,
+                    textAlign: 'center',
+                    fontSize: 16,
+                    fontFamily: 'Arial',
+                    fontEffect: 'normal',
+                    fontDecoration: 'none',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'line') {
                 setIsDrawing(true);
                 const newItem: LineItem = {
+                    isFillable: true,
+                    isStrokeable: true,
+                    points: [pos.x, pos.y, pos.x, pos.y],
+                    isArrow: false,
+                    hasArrowTail: false,
+                    hasArrowHead: false,
                     id: createCUID(),
                     type: 'line',
                     position: { x: 0, y: 0 },
-                    points: [pos.x, pos.y, pos.x, pos.y],
-                    isStrokeable: true,
-                    isStokeEnabled: true,
+                    version: 1,
+                    attachments: [],
                     strokeColor: '#000000',
+                    strokeOpacity: 1,
                     strokeStyle: 'solid',
-                    isFillable: true,
-                    isFillEnabled: true,
+                    strokeWidth: 1,
+                    isStrokeEnabled: true,
                     fillColor: '#000000',
-                    isArrow: false,
+                    fillOpacity: 1,
+                    isFillEnabled: true,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'arrow') {
                 setIsDrawing(true);
                 const newItem: LineItem = {
+                    isFillable: true,
+                    isStrokeable: true,
+                    isArrow: true,
+                    points: [pos.x, pos.y, pos.x, pos.y],
+                    hasArrowTail: false,
+                    hasArrowHead: true,
                     id: createCUID(),
                     type: 'arrow',
                     position: { x: 0, y: 0 },
-                    points: [pos.x, pos.y, pos.x, pos.y],
-                    isStrokeable: true,
-                    isStokeEnabled: true,
+                    version: 1,
+                    attachments: [],
                     strokeColor: '#000000',
+                    strokeOpacity: 1,
                     strokeStyle: 'solid',
-                    isFillable: true,
-                    isFillEnabled: true,
+                    strokeWidth: 1,
+                    isStrokeEnabled: true,
                     fillColor: '#000000',
-                    isArrow: true,
-                    hasArrowTail: false,
-                    hasArrowHead: true,
+                    fillOpacity: 1,
+                    isFillEnabled: true,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'image') {
                 setIsDrawing(true);
                 const newItem: ImageItem = {
                     id: createCUID(),
-                    type: 'image',
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
-                    isStrokeable: true,
-                    strokeColor: '#000000',
-                    strokeStyle: 'solid',
+                    type: 'image',
+                    version: 1,
+                    attachments: [],
+                    isStrokeable: false,
                     isFillable: false,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'draw') {
                 setIsDrawing(true);
                 const newItem: DrawItem = {
+                    points: [pos.x, pos.y, pos.x, pos.y],
                     id: createCUID(),
                     type: 'draw',
                     position: { x: 0, y: 0 },
-                    size: { width: e.target.getClientRect().width, height: e.target.getClientRect().height },
-                    points: [pos.x, pos.y, pos.x, pos.y],
-                    isStrokeable: true,
-                    isStokeEnabled: true,
-                    strokeStyle: 'solid',
+                    size: { width: 0, height: 0 },
+                    version: 1,
+                    attachments: [],
                     strokeColor: '#000000',
-                    isFillable: false,
+                    strokeOpacity: 1,
+                    strokeStyle: 'solid',
+                    strokeWidth: 1,
+                    isStrokeEnabled: true,
+                    fillColor: '#000000',
+                    fillOpacity: 1,
+                    isFillEnabled: true,
+                    isStrokeable: true,
+                    isFillable: true,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'custom') {
                 setIsDrawing(true);
                 const newItem: CustomItem = {
                     id: createCUID(),
-                    type: 'custom',
-                    entity: 'Custom-Item-Entity',
                     position: { x: pos.x, y: pos.y },
                     size: { width: 0, height: 0 },
+                    type: 'custom',
+                    version: 1,
+                    attachments: [],
+                    entity: 'New-Entity',
+                    displayName: {
+                        text: 'New-Entity',
+                        fontSize: 14,
+                    },
+                    lore: [],
+                    showTooltip: false,
                     isStrokeable: false,
                     isFillable: false,
-                    displayName: {
-                        text: 'Custom item',
-                        fontSize: 14,
-                    } as TooltipLine,
-                    lore: [],
                 };
                 setPreviewItem(newItem);
             }
@@ -272,43 +325,46 @@ const Canvas = () => {
     const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
         if (isDrawing && previewItem) {
             const pos = e.target.getStage()!.getRelativePointerPosition()!;
-            if (selectedTool === 'rectangle' || selectedTool === 'diamond') {
-                setPreviewItem({
-                    ...previewItem,
-                    size: { width: pos.x - previewItem.position.x, height: pos.y - previewItem.position.y },
-                } as RectangleItem);
-            } else if (selectedTool === 'circle') {
-                setPreviewItem({
-                    ...previewItem,
-                    size: { width: pos.x - previewItem.position.x, height: pos.y - previewItem.position.y },
-                } as CircleItem);
-            } else if (selectedTool === 'text') {
-                setPreviewItem({
-                    ...previewItem,
-                    size: { width: pos.x - previewItem.position.x, height: pos.y - previewItem.position.y },
-                } as TextItem);
-            } else if (selectedTool === 'line' || selectedTool === 'arrow') {
-                setPreviewItem({
-                    ...previewItem,
-                    points: [(previewItem as LineItem).points[0], (previewItem as LineItem).points[1], pos.x, pos.y],
-                } as LineItem);
-            } else if (selectedTool === 'image') {
-                setPreviewItem({
-                    ...previewItem,
-                    size: { width: pos.x - previewItem.position.x, height: pos.y - previewItem.position.y },
-                } as ImageItem);
-            } else if (selectedTool === 'draw') {
-                const points = (previewItem as DrawItem).points;
-                const newPoints = points.concat([pos.x, pos.y]);
-                setPreviewItem({
-                    ...previewItem,
-                    points: newPoints,
-                } as DrawItem);
-            } else if (selectedTool === 'custom') {
-                setPreviewItem({
-                    ...previewItem,
-                    size: { width: pos.x - previewItem.position.x, height: pos.y - previewItem.position.y },
-                } as CustomItem);
+            const { x, y } = pos;
+
+            switch (previewItem.type) {
+                case 'rectangle':
+                case 'diamond':
+                case 'circle':
+                case 'text':
+                    setPreviewItem({
+                        ...previewItem,
+                        size: {
+                            width: x - previewItem.position.x,
+                            height: y - previewItem.position.y,
+                        },
+                    } as RectangleItem | CircleItem | TextItem);
+                    break;
+                case 'image':
+                case 'custom':
+                    setPreviewItem({
+                        ...previewItem,
+                        size: {
+                            width: x - previewItem.position.x,
+                            height: y - previewItem.position.y,
+                        },
+                    } as ImageItem);
+                    break;
+                case 'line':
+                case 'arrow':
+                    setPreviewItem({
+                        ...previewItem,
+                        points: [(previewItem as LineItem).points[0]!, (previewItem as LineItem).points[1]!, x, y],
+                    } as LineItem);
+                    break;
+                case 'draw':
+                    setPreviewItem({
+                        ...previewItem,
+                        points: [...(previewItem as DrawItem).points, x, y],
+                    } as DrawItem);
+                    break;
+                default:
+                    console.warn(`Unhandled tool: ${selectedTool}`);
             }
         }
     };
@@ -322,10 +378,10 @@ const Canvas = () => {
             dispatch(
                 addToHistory({
                     type: 'create',
-                    currentSnapshot: { ...previewItem },
+                    currentSnapshots: [{ ...previewItem }],
                 }),
             );
-            //requestItemSave();
+            handleItemSave([...items, previewItem]);
             setPreviewItem(null);
         }
     };

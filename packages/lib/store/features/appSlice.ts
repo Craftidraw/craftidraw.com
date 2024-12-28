@@ -133,14 +133,20 @@ export const appSlice = createSlice({
         addItem: (state, action: PayloadAction<Item>) => {
             itemsAdapter.addOne(state.items, action.payload);
         },
+        addItems: (state, action: PayloadAction<Item[]>) => {
+            itemsAdapter.addMany(state.items, action.payload);
+        },
         setItem: (state, action: PayloadAction<Item>) => {
             itemsAdapter.upsertOne(state.items, action.payload);
         },
         setItems: (state, action: PayloadAction<Item[]>) => {
-            itemsAdapter.setAll(state.items, action.payload);
+            itemsAdapter.upsertMany(state.items, action.payload);
         },
         deleteItem: (state, action: PayloadAction<string>) => {
             itemsAdapter.removeOne(state.items, action.payload);
+        },
+        deleteItems: (state, action: PayloadAction<string[]>) => {
+            itemsAdapter.removeMany(state.items, action.payload);
         },
         setAttachment: (state, action: PayloadAction<{ item: Item; attachment: Attachment }>) => {
             itemsAdapter.updateOne(state.items, {
@@ -241,12 +247,13 @@ export const {
     unsetWorkspaces,
     addWorkspace,
     removeWorkspace,
-
     setBoard,
     updateBoard,
     unsetBoard,
     addItem,
+    addItems,
     deleteItem,
+    deleteItems,
     setAttachment,
     addAttachment,
     removeAttachment,

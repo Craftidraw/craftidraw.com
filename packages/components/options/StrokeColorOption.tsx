@@ -69,7 +69,7 @@ const StrokeColorOption: React.FC<StrokeColorOptionProps> = ({ item }) => {
 
     return (
         <>
-            {item.isStrokeable && item.isStokeEnabled && (
+            {item.isStrokeable && item.isStrokeEnabled && (
                 <>
                     <Form.Label style={{ marginBottom: '0' }}>Stroke Color</Form.Label>
                     <div style={{ margin: '0.45rem 0', border: '1px solid rgb(0, 0, 0, 0.1)', borderRadius: '8px' }}>

@@ -61,7 +61,7 @@ const ExportsEditorBlock: React.FC<CustomExportsEditorProps> = ({
                 default:
                     setFileType('');
             }
-            selectedConfigurationInModal.file.text().then((contents: React.SetStateAction<string>) => {
+            void selectedConfigurationInModal.file.text().then((contents: React.SetStateAction<string>) => {
                 setFileName(selectedConfigurationInModal.file.name);
                 setFileContents(contents);
                 setAlteredFileContents(contents);
@@ -120,7 +120,7 @@ const ExportsEditorBlock: React.FC<CustomExportsEditorProps> = ({
                                 variant='secondary'
                                 size='sm'
                                 onClick={async () => {
-                                    requestConfirmation('Are you sure you want to save this configuration?').then(
+                                    await requestConfirmation('Are you sure you want to save this configuration?').then(
                                         async (confirmed) => {
                                             if (confirmed) {
                                                 await updateExportConfiguration(
@@ -141,8 +141,8 @@ const ExportsEditorBlock: React.FC<CustomExportsEditorProps> = ({
                             className='me-1'
                             variant='primary'
                             size='sm'
-                            onClick={() => {
-                                requestConfirmation('Are you sure you want to go back?').then((confirmed) => {
+                            onClick={async () => {
+                                await requestConfirmation('Are you sure you want to go back?').then((confirmed) => {
                                     if (confirmed) {
                                         setAlteredFileContents(fileContents);
                                         handleEditorClose();

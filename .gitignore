@@ -6,3 +6,7 @@
 
 # Temporary
 /apps/app/
+
+# IDE
+/.idea/
+/.vscode/

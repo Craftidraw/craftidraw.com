@@ -17,21 +17,22 @@ const BoardFooter: React.FC<UIFooterProps> = ({ stageRef }) => {
     const items: Item[] = useAppSelector(selectAllItems);
     const canvasZoom = useAppSelector((state: RootState) => state.app.canvasZoom);
 
-    const handleSelect = (e: React.MouseEvent<HTMLElement, MouseEvent>, item: Item) => {
+    const handleSelect = (item: Item) => {
         dispatch(setSelectedItem(item));
 
         if (stageRef.current) {
             const stage = stageRef.current;
-            let x, y;
+            let x: number, y: number;
 
             if (item.type === 'line' || item.type === 'arrow') {
                 const line = item as LineItem;
-                x = (line.points[0] + line.points[2]) / 2;
-                y = (line.points[1] + line.points[3]) / 2;
+                if(!line.points || line.points.length < 4) return
+                x = (line.points[0]! + line.points[2]!) / 2;
+                y = (line.points[1]! + line.points[3]!) / 2;
             } else if (item.type === 'draw') {
                 const midpoint = (item as DrawItem).points.length / 2;
-                x = (item as DrawItem).points[midpoint];
-                y = (item as DrawItem).points[midpoint + 1];
+                x = (item as DrawItem).points[midpoint]!;
+                y = (item as DrawItem).points[midpoint + 1]!;
             } else {
                 x = item.position.x;
                 y = item.position.y;
@@ -59,7 +60,7 @@ const BoardFooter: React.FC<UIFooterProps> = ({ stageRef }) => {
                     key={item.id + 'map'}
                     className='d-flex item-card'
                     style={{ flexDirection: 'row', display: 'block', border: 'none' }}
-                    onClick={(e) => handleSelect(e, item)}
+                    onClick={() => handleSelect(item)}
                 >
                     <Card.Body style={{ paddingTop: '5px', paddingBottom: '5px' }}>
                         <h6>{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</h6>
@@ -104,7 +105,7 @@ const BoardFooter: React.FC<UIFooterProps> = ({ stageRef }) => {
                 <ButtonGroup style={{ pointerEvents: 'auto' }}>
                     <Button
                         variant='primary'
-                        onClick={(e) => {
+                        onClick={() => {
                             if (stageRef.current) {
                                 const stage = stageRef.current;
                                 const scaleBy = 1.05;

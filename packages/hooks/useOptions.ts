@@ -10,7 +10,7 @@ export const useOptions = () => {
         updateItem(
             {
                 ...item,
-                isStokeEnabled: !item.isStokeEnabled,
+                isStrokeEnabled: !item.isStrokeEnabled,
             },
             item,
         );

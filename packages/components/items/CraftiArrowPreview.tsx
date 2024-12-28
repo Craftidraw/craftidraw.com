@@ -12,7 +12,7 @@ const CraftiArrowPreview: React.FC<CraftiArrowProps> = ({ item }) => {
             x={item.position.x}
             y={item.position.y}
             points={item.points}
-            stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
+            stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
             fill={item.isFillEnabled && item.isArrow ? item.fillColor : 'transparent'}
             itemType={item.type}
             pointerAtBeginning={item.hasArrowTail}

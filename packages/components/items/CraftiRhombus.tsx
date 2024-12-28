@@ -59,8 +59,8 @@ const CraftiRhombus: React.FC<CraftiRhombusProps> = ({ item }) => {
                     0,
                 ]}
                 closed={true}
-                stroke={item.isStokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
-                strokeWidth={item.isStokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
+                stroke={item.isStrokeEnabled && item.strokeColor ? item.strokeColor : 'transparent'}
+                strokeWidth={item.isStrokeEnabled && item.strokeWidth ? item.strokeWidth : 1}
                 dashEnabled={item.strokeStyle !== 'solid'}
                 dash={item.strokeStyle === 'dashed' ? [15, 15] : [5, 5]}
                 fill={item.isFillEnabled && item.fillColor ? item.fillColor : 'transparent'}

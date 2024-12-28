@@ -6,7 +6,7 @@ interface CraftiCircleProps {
     item: CircleItem;
 }
 
-const CraftiRectangle: React.FC<CraftiCircleProps> = ({ item }) => {
+const CraftiCirclePreview: React.FC<CraftiCircleProps> = ({ item }) => {
     return (
         <Ellipse
             x={item.position.x}
@@ -24,4 +24,4 @@ const CraftiRectangle: React.FC<CraftiCircleProps> = ({ item }) => {
     );
 };
 
-export default CraftiRectangle;
+export default CraftiCirclePreview;

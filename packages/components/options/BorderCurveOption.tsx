@@ -1,6 +1,6 @@
 import { Button, Form } from 'react-bootstrap';
 import React from 'react';
-import type { ImageItem, Item, RectangleItem } from '~/types/item';
+import type { Item, RectangleItem } from '~/types/item';
 import { useOptions } from '~/hooks/useOptions';
 
 interface BorderCurveOptionProps {
@@ -18,14 +18,14 @@ const BorderCurveOption: React.FC<BorderCurveOptionProps> = ({ item }) => {
                     <div>
                         <Button
                             variant='options'
-                            active={(item as RectangleItem | ImageItem).borderRadius === 0}
+                            active={(item as RectangleItem).borderRadius === 0}
                             onClick={() => setBorderRadius(item, 0)}
                         >
                             Sharp
                         </Button>
                         <Button
                             variant='options'
-                            active={(item as RectangleItem | ImageItem).borderRadius === 15}
+                            active={(item as RectangleItem).borderRadius === 15}
                             onClick={() => setBorderRadius(item, 15)}
                         >
                             Rounded

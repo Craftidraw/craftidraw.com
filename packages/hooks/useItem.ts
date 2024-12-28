@@ -17,12 +17,11 @@ import { throttle } from 'lodash';
 import type { HistoryAction } from '~/types/history';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 import {
-    addAttachment,
     addToHistory,
-    removeAttachment,
     selectAllItems,
     setIsSaved,
     setItem,
+    setItems,
     setSelectedItem,
 } from '~/lib/store/features/appSlice';
 import { useStorage } from '~/providers/StorageProvider';
@@ -40,7 +39,7 @@ export const useItem = () => {
 
     const preparedActionRef = useRef<Partial<HistoryAction> | null>(null);
     const localItemRef = useRef<Item | null>(null);
-
+        
     const handleItemSave = useCallback(
         (itemToSave: Item[] | null = null) => {
             dispatch(setIsSaved('pending'));
@@ -59,22 +58,40 @@ export const useItem = () => {
         [items, dispatch, requestItemSave],
     );
 
-    const updateItem = useCallback(
-        (current: Item, previous?: Item) => {
-            dispatch(setItem(current));
-            dispatch(setSelectedItem(current));
-            if (previous) {
+    const updateItems = useCallback(
+        (itemsToUpdate: Item[], previousItems?: Item[]) => {
+            const updatedItems = itemsToUpdate.map((item) => ({
+                ...item,
+                version: item.version + 1,
+            }));
+
+            const newItems = items.map((item) => {
+                const updatedItem = updatedItems.find((u) => u.id === item.id);
+                return updatedItem ?? item;
+            });
+
+            dispatch(setItems(newItems));
+
+            if (previousItems) {
                 dispatch(
                     addToHistory({
                         type: 'update',
-                        previousSnapshot: { ...previous },
-                        currentSnapshot: { ...current },
+                        previousSnapshots: previousItems,
+                        currentSnapshots: updatedItems,
                     } as HistoryAction),
                 );
             }
-            handleItemSave();
+
+            handleItemSave(newItems);
         },
-        [dispatch, handleItemSave],
+        [dispatch, handleItemSave, items],
+    );
+
+    const updateItem = useCallback(
+        (current: Item, previous?: Item) => {
+            updateItems([current], previous ? [previous] : undefined);
+        },
+        [updateItems],
     );
 
     const selectItem = (e: Konva.KonvaEventObject<MouseEvent>, item: Item) => {
@@ -129,7 +146,7 @@ export const useItem = () => {
                         height: (item as RectangleItem).size.height,
                     },
                     originPoint,
-                );
+                ).filter((point): point is number => point !== undefined);
         }
     };
 
@@ -157,10 +174,10 @@ export const useItem = () => {
             const relativeX = connectedLine.position?.x ?? 0;
             const relativeY = connectedLine.position?.y ?? 0;
 
-            if (connectionIndex === 0) {
+            if (connectionIndex === 0 && newPoints[0] !== undefined && newPoints[1] !== undefined) {
                 points[0] = newPoints[0] - relativeX;
                 points[1] = newPoints[1] - relativeY;
-            } else {
+            } else if (newPoints[0] !== undefined && newPoints[1] !== undefined) {
                 points[2] = newPoints[0] - relativeX;
                 points[3] = newPoints[1] - relativeY;
             }
@@ -194,13 +211,22 @@ export const useItem = () => {
                 }
             });
         },
-        [itemLayerRef],
+        [hasIntersection, itemLayerRef],
     );
 
     const moveItemStart = (item: Item) => {
+        const itemsToSave: Item[] = [item];
+        if (item.type !== 'line' && item.type !== 'arrow') {
+            for (const attachment of item.attachments ?? []) {
+                const connectedLine = items.find((i) => i.id === attachment.connector) as LineItem;
+                if (connectedLine) {
+                    itemsToSave.push(connectedLine);
+                }
+            }
+        }
         preparedActionRef.current = {
             type: 'update',
-            previousSnapshot: { ...item },
+            previousSnapshots: itemsToSave,
         };
         localItemRef.current = item;
     };
@@ -225,36 +251,45 @@ export const useItem = () => {
 
     const moveItemEnd = useCallback(
         (item: Item) => {
+            if (!preparedActionRef.current?.previousSnapshots) return;
+
             const snappedPosition = getSnappedPosition(
                 localItemRef.current?.position.x ?? 0,
                 localItemRef.current?.position.y ?? 0,
             );
 
-            const updatedItem = {
-                ...item,
-                position: snappedPosition,
-            };
-            dispatch(setItem(updatedItem));
-
-            if (!preparedActionRef.current) return;
-            const action: HistoryAction = {
-                type: preparedActionRef.current.type as 'update',
-                previousSnapshot: preparedActionRef.current.previousSnapshot as Item,
-                currentSnapshot: { ...localItemRef.current! },
-            };
-            dispatch(addToHistory(action));
-
-            const updatedItems = items.map((i) => (i.id === updatedItem.id ? updatedItem : i));
-            handleItemSave(updatedItems);
+            const updatedItems = [
+                {
+                    ...item,
+                    position: snappedPosition,
+                    version: item.version + 1,
+                },
+            ];
+            
+            if (item.type !== 'line' && item.type !== 'arrow') {
+                for (const attachment of item.attachments ?? []) {
+                    const foundLine = itemLayerRef.current?.findOne(`#${attachment.connector}`);
+                    const connectedLine = items.find((i) => i.id === attachment.connector) as LineItem;
+                    if (foundLine) {
+                        const points = foundLine.attrs.points;
+                        updatedItems.push({
+                            ...connectedLine,
+                            points: points,
+                            version: connectedLine.version + 1,
+                        } as LineItem);
+                    }
+                }
+            }
+            updateItems(updatedItems, preparedActionRef.current?.previousSnapshots);
             preparedActionRef.current = null;
         },
-        [dispatch, handleItemSave, getSnappedPosition, items],
+        [getSnappedPosition, updateItems, items],
     );
 
     const moveAnchorStart = (item: LineItem) => {
         preparedActionRef.current = {
             type: 'update',
-            previousSnapshot: { ...item },
+            previousSnapshots: [{ ...item }],
         };
         localItemRef.current = item;
     };
@@ -318,88 +353,99 @@ export const useItem = () => {
             const connectorKey = index === 0 ? 'tailConnector' : 'headConnector';
             const currentConnection = lineRef[connectorKey]?.connected;
             let updatedLine: LineItem;
+            let connectedItem: Item | undefined;
 
             if (isOnAttachmentZone && !currentConnection) {
+                // Find the item we're connecting to
+                connectedItem = items.find((i) => i.id === currentConnectorId);
+                if (!connectedItem) return;
+
                 updatedLine = {
                     ...lineRef,
                     [connectorKey]: { connected: currentConnectorId },
+                    version: lineRef.version + 1,
                 } as LineItem;
 
-                dispatch(
-                    addAttachment({
-                        id: currentConnectorId!,
-                        attachment: {
-                            connector: lineRef.id,
-                        },
-                    }),
-                );
+                const updatedConnectedItem = {
+                    ...connectedItem,
+                    attachments: [...(connectedItem.attachments ?? []), { connector: lineRef.id }],
+                    version: connectedItem.version + 1,
+                };
 
-                dispatch(setItem(updatedLine));
+                updateItems([updatedLine, updatedConnectedItem], [lineRef, connectedItem]);
             } else if (!isOnAttachmentZone && currentConnection) {
+                // Find the item we're disconnecting from
+                connectedItem = items.find((i) => i.id === currentConnection);
+                if (!connectedItem) return;
+
                 updatedLine = {
                     ...lineRef,
                     [connectorKey]: undefined,
+                    version: lineRef.version + 1,
                 } as LineItem;
 
-                dispatch(
-                    removeAttachment({
-                        id: currentConnection,
-                        attachment: {
-                            connector: lineRef.id,
-                        },
-                    }),
-                );
-                dispatch(setItem(updatedLine));
+                const updatedConnectedItem = {
+                    ...connectedItem,
+                    attachments: connectedItem.attachments?.filter((a) => a.connector !== lineRef.id),
+                    version: connectedItem.version + 1,
+                };
+
+                updateItems([updatedLine, updatedConnectedItem], [lineRef, connectedItem]);
             } else {
                 updatedLine = { ...lineRef };
+                updateItems([updatedLine], [lineRef]);
             }
 
-            if (!preparedActionRef.current) return;
-
-            const action: HistoryAction = {
-                type: preparedActionRef.current.type as 'update',
-                previousSnapshot: preparedActionRef.current.previousSnapshot as Item,
-                currentSnapshot: { ...updatedLine },
-            };
-            dispatch(addToHistory(action));
-
-            const updatedItems = items.map((i) => (i.id === item.id ? updatedLine : i));
-            handleItemSave(updatedItems);
             preparedActionRef.current = null;
         },
-        [dispatch, handleItemSave, hasIntersection, itemLayerRef, items],
+        [updateItems, hasIntersection, itemLayerRef, items],
     );
 
     const transformItemStart = (item: Item) => {
         preparedActionRef.current = {
             type: 'update',
-            previousSnapshot: { ...item },
+            previousSnapshots: [{ ...item }],
         };
+        localItemRef.current = item;
     };
 
     const transformItem = throttle((e: Konva.KonvaEventObject<Event>, item: Item) => {
+        if (item.type === 'line' || item.type === 'arrow' || item.type === 'draw') return;
+
         const node = e.target;
         const scaleX = node.scaleX();
         const scaleY = node.scaleY();
         node.scaleX(1);
         node.scaleY(1);
 
-        if (item.type === 'line' || item.type === 'arrow' || item.type === 'draw') return;
+        const width = Math.max(5, node.width() * scaleX);
+        const height = Math.max(5, node.height() * scaleY);
 
-        const width = node.width() * scaleX;
-        const height = node.height() * scaleY;
+        if (item.type === 'diamond') {
+            const newRhombusPoints = [width / 2, 0, width, height / 2, width / 2, height, 0, height / 2, width / 2, 0];
+            node.setAttrs({ points: newRhombusPoints });
+        } else if (item.type === 'circle') {
+            node.setAttrs({
+                radiusX: width / 2,
+                radiusY: height / 2,
+                offsetX: -width / 2,
+                offsetY: -height / 2,
+            });
+        } else {
+            node.setAttrs({ width, height });
+        }
 
         localItemRef.current = {
             ...item,
             size: { width, height },
         } as RectangleItem | CircleItem | CustomItem | TextItem | ImageItem;
-
-        node.setAttrs({ width, height });
     }, 1000 / 144);
 
     const transformItemEnd = useCallback(
         (item: Item) => {
             if (!localItemRef.current) return;
+            if (!preparedActionRef.current?.previousSnapshots) return;
+
             const validItem = localItemRef.current as RectangleItem | CircleItem | CustomItem | TextItem | ImageItem;
 
             const updatedItem = {
@@ -408,26 +454,19 @@ export const useItem = () => {
                     width: validItem.size.width,
                     height: validItem.size.height,
                 },
+                version: item.version + 1,
             } as RectangleItem | CircleItem | CustomItem | TextItem | ImageItem;
-            dispatch(setItem(updatedItem));
+            updateItem(updatedItem, preparedActionRef.current?.previousSnapshots[0]);
 
-            if (!preparedActionRef.current) return;
-            const action: HistoryAction = {
-                type: preparedActionRef.current.type as 'update',
-                previousSnapshot: preparedActionRef.current.previousSnapshot as Item,
-                currentSnapshot: { ...validItem },
-            };
-            dispatch(addToHistory(action));
-
-            const updatedItems = items.map((i) => (i.id === item.id ? validItem : i));
-            handleItemSave(updatedItems);
             preparedActionRef.current = null;
         },
-        [dispatch, handleItemSave, items],
+        [updateItem],
     );
 
     return {
+        handleItemSave,
         updateItem,
+        updateItems,
         selectItem,
         moveItemStart,
         moveItem,
