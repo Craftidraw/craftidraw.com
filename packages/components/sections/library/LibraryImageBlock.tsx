@@ -32,7 +32,7 @@ const LibraryImageBlock: React.FC = () => {
             setLoadedImages(images);
         };
 
-        loadImages();
+        void loadImages();
     }, []);
 
     useEffect(() => {

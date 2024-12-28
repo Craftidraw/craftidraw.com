@@ -4,7 +4,6 @@ import { type Item, type LineItem } from '~/types/item';
 import { Arrow, Line } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
 import { useAppSelector } from '~/lib/store/hooks';
-import type Konva from 'konva';
 
 interface CraftiLineProps {
     item: LineItem;

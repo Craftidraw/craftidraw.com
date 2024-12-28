@@ -89,7 +89,11 @@ const GridLayer: React.FC<GridProps> = ({ stagePos }) => {
         return newLines;
     }, [stagePos, zoom, gridStep, subGridStep, color, subColor, board]);
 
-    return <Layer listening={false}>{lines}</Layer>;
+    return <Layer listening={false}>{lines.map((line) => (
+        <>
+            {line}
+        </>
+    ))}</Layer>;
 };
 
 export default GridLayer;

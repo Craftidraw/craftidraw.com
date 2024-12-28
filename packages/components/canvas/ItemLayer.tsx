@@ -49,10 +49,6 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
 
     const [anchors, setAnchors] = useState<{ x: number; y: number }[]>([]);
 
-    useEffect(() => {
-        updateAnchors();
-    }, [selectedItem]);
-
     const updateAnchors = useCallback(() => {
         if (selectedItem?.type === 'line' || selectedItem?.type === 'arrow') {
             const lineItem = selectedItem as LineItem;
@@ -69,6 +65,10 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
             setAnchors([]);
         }
     }, [selectedItem]);
+
+    useEffect(() => {
+        updateAnchors();
+    }, [selectedItem, updateAnchors]);
 
     return (
         <Layer id='itemLayer' ref={itemLayerRef}>

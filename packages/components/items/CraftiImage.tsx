@@ -66,7 +66,7 @@ const CraftiImage: React.FC<CraftiImageProps> = ({ item }) => {
                     dash={[5, 5]}
                     cornerRadius={5}
                     onClick={(e) => selectItem(e, item)}
-                    onDblClick={(e) => handleImageSelect()}
+                    onDblClick={() => handleImageSelect()}
                     onTransformStart={() => transformItemStart(item)}
                     onTransform={(e) => transformItem(e, item)}
                     onTransformEnd={() => transformItemEnd(item)}

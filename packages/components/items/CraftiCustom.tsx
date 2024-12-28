@@ -87,7 +87,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
 
         parts.forEach((part, index) => {
             if (minecraftColorRegex.test(part)) {
-                currentColor = minecraftColorMap[part];
+                currentColor = minecraftColorMap[part] ?? '#FFFFFF';
             } else if (hexColorRegex.test(part)) {
                 currentColor = part;
             } else if (part) {
@@ -123,7 +123,11 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     alignItems: 'center',
                 }}
             >
-                {elements}
+                {elements.map((element) => (
+                    <>
+                        {element}
+                    </>
+                ))}
             </div>
         );
     };
@@ -236,7 +240,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     draggable={selectedItem?.id === item.id}
                 />
             )}
-            {(item.showTooltip ?? showTooltip) && item.tooltipSettings && tooltipLocation.x && (
+            {(item.showTooltip ?? showTooltip) && item.tooltipSettings?.tooltip && tooltipLocation.x && (
                 <Html
                     groupProps={{ offsetX: -tooltipLocation.x, offsetY: -tooltipLocation.y }}
                     divProps={{ className: 'd-flex tooltip-box', style: {} }}
