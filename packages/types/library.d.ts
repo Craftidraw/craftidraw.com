@@ -1,3 +1,5 @@
+import { type Item, type TooltipSettings } from '~/types/item';
+
 export interface ImageCollection {
     id: number;
     name: string;
@@ -38,5 +40,5 @@ export interface LibraryExportConfiguration {
 export interface LibraryTooltipConfiguration {
     id: number;
     name: string;
-    tooltip: Tooltip;
+    settings: TooltipSettings;
 }

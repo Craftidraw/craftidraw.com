@@ -87,21 +87,28 @@ export interface TooltipLine {
     fontDecoration?: 'none' | 'underline' | 'line-through';
 }
 
-export interface Tooltip {
+export interface TooltipSettings {
     strokeColor?: string;
     strokeStyle?: string;
     strokeWidth?: number;
     isStokeEnabled?: boolean;
     fillColor?: string;
     isFillEnabled?: boolean;
+    borderRadius?: number;
+}
+
+export interface Tooltip {
+    config?: LibraryTooltipConfiguration;
+    position: Position; // THIS IS RELATIVE TO THE ITEM, NOT THE CANVAS. STARTS FROM THE TOP RIGHT CORNER OF THE ITEM.
+    size: Size;
 }
 
 export interface CustomItem extends Item {
     size: Size;
-    image?: LibraryImage;
     entity: string;
+    image?: LibraryImage;
+    showTooltip?: boolean;
     displayName?: TooltipLine;
     lore?: TooltipLine[];
-    tooltipSettings?: LibraryTooltipConfiguration;
-    showTooltip?: boolean;
+    tooltip: Tooltip;
 }

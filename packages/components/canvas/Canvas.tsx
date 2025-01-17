@@ -28,7 +28,7 @@ const Canvas = () => {
     const dispatch = useAppDispatch();
     const { useKeyPress, useKeyRelease, cut, paste, redo, copy, remove, undo, quickMoveUp, quickMoveDown } =
         useShortcut();
-    const { stageRef, transformerRef } = useStage();
+    const { stageRef, transformerRef, tooltipTransformerRef } = useStage();
     const { handleItemSave } = useItem();
 
     const items = useAppSelector(selectAllItems);
@@ -53,7 +53,24 @@ const Canvas = () => {
         } else {
             transformerRef.current?.nodes([]);
         }
-    }, [selectedItem, stageRef, transformerRef, selectedItem?.version]);
+
+        if (
+            selectedItem &&
+            tooltipTransformerRef.current &&
+            stageRef.current &&
+            selectedItem.type === 'custom' &&
+            (selectedItem as CustomItem).tooltip.config
+        ) {
+            setTimeout(() => {
+                const selectedNode = stageRef.current?.findOne('#tooltip-' + selectedItem.id);
+                if (selectedNode) {
+                    tooltipTransformerRef.current?.nodes([selectedNode]);
+                } else {
+                    tooltipTransformerRef.current?.nodes([]);
+                }
+            }, 10);
+        }
+    }, [selectedItem, stageRef, transformerRef, tooltipTransformerRef, selectedItem?.version]);
 
     useKeyPress(' ', () => {
         if (isCustomExportsOpen) return;
@@ -308,12 +325,16 @@ const Canvas = () => {
                     version: 1,
                     attachments: [],
                     entity: 'New-Entity',
+                    showTooltip: false,
                     displayName: {
                         text: 'New-Entity',
                         fontSize: 14,
                     },
                     lore: [],
-                    showTooltip: false,
+                    tooltip: {
+                        position: { x: 20, y: 0 },
+                        size: { width: 200, height: 50 },
+                    },
                     isStrokeable: false,
                     isFillable: false,
                 };

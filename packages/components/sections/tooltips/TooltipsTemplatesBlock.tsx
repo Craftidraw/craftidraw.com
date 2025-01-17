@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { LibraryTooltipConfiguration } from '~/types/library';
 import { Button, Form } from 'react-bootstrap';
 import TooltipPreview from '../../ui/preview/TooltipPreview';
-import { type CustomItem } from '~/types/item';
+import { Tooltip, type CustomItem } from '~/types/item';
 import { type RootState } from '~/lib/store/store';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 import { setIsCustomTooltipsOpen, setItem, setSelectedItem } from '~/lib/store/features/appSlice';
@@ -31,7 +31,7 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
                 {
                     id: 999,
                     name: 'Minecraft Default Tooltip',
-                    tooltip: {
+                    settings: {
                         strokeColor: '#250945',
                         strokeStyle: 'solid',
                         strokeWidth: 4,
@@ -43,7 +43,8 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
             ];
             setTemplateTooltips(tooltips);
         };
-        loadTooltipTemplates();
+
+        void loadTooltipTemplates();
     }, []);
 
     useEffect(() => {
@@ -68,8 +69,11 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
 
         const item = {
             ...selectedItem,
-            tooltipSettings: selectedTooltip,
-        } as CustomItem;
+            tooltip: {
+                ...(selectedItem as CustomItem).tooltip,
+                config: selectedTooltip,
+            } as Tooltip,
+        };
 
         dispatch(setItem(item));
         dispatch(setSelectedItem(item));
@@ -135,7 +139,7 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
                             }
                         >
                             <div className='library-tooltip-image-container'>
-                                <TooltipPreview tooltip={tooltip.tooltip} />
+                                <TooltipPreview settings={tooltip.settings} />
                             </div>
                             <div
                                 className='d-flex flex-column library-tooltip-details'

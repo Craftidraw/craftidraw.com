@@ -28,11 +28,13 @@ import Image from 'next/image';
 import InputGroupWrapper from '~/components/common/InputGroupWrapper';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 
-const OptionsBar: React.FC = () => {
+const OptionsBar = () => {
     const dispatch = useAppDispatch();
     const { updateItem } = useItem();
+
     const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
     const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem?.id ?? ''));
+
     const [alteredEntityText, setAlteredEntityText] = useState<string>(
         selectedItem?.type === 'custom' ? (selectedItem as CustomItem).entity : '',
     );
@@ -108,7 +110,7 @@ const OptionsBar: React.FC = () => {
                                         <Form.Control
                                             type='text'
                                             size='sm'
-                                            value={(currentItem as CustomItem).tooltipSettings?.name ?? 'Not set'}
+                                            value={(currentItem as CustomItem).tooltip?.config?.name ?? 'Not set'}
                                             disabled={true}
                                         />
                                         <Button

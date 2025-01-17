@@ -4,6 +4,7 @@ import type Konva from 'konva';
 interface StageContextType {
     stageRef: RefObject<Konva.Stage>;
     transformerRef: RefObject<Konva.Transformer>;
+    tooltipTransformerRef: RefObject<Konva.Transformer>;
     itemLayerRef: RefObject<Konva.Layer>;
     getRelativePointerPosition: () => { x: number; y: number } | null;
     getStageScale: () => number;
@@ -14,6 +15,7 @@ const StageContext = createContext<StageContextType | null>(null);
 export const StageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const stageRef = useRef<Konva.Stage>(null);
     const transformerRef = useRef<Konva.Transformer>(null);
+    const tooltipTransformerRef = useRef<Konva.Transformer>(null);
     const itemLayerRef = useRef<Konva.Layer>(null);
 
     const getRelativePointerPosition = useCallback(() => {
@@ -29,6 +31,7 @@ export const StageProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const value = {
         stageRef,
         transformerRef,
+        tooltipTransformerRef,
         itemLayerRef,
         getRelativePointerPosition,
         getStageScale,

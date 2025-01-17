@@ -41,7 +41,7 @@ interface ItemLayerProps {
 }
 
 const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
-    const { itemLayerRef, transformerRef } = useStage();
+    const { itemLayerRef, transformerRef, tooltipTransformerRef } = useStage();
     const { moveAnchorStart, moveAnchor, moveAnchorEnd } = useItem();
 
     const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
@@ -72,29 +72,31 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
 
     return (
         <Layer id='itemLayer' ref={itemLayerRef}>
-            {itemLayerRef.current && items?.map((item) => {
-                if (item.type === 'rectangle') {
-                    return <CraftiRectangle key={item.id} item={item as RectangleItem} />;
-                } else if (item.type === 'circle') {
-                    return <CraftiCircle key={item.id} item={item as CircleItem} />;
-                } else if (item.type === 'line') {
-                    return <CraftiLine key={item.id} item={item as LineItem} />;
-                } else if (item.type === 'arrow') {
-                    return <CraftiArrow key={item.id} item={item as LineItem} />;
-                } else if (item.type === 'text') {
-                    return <CraftiText key={item.id} item={item as TextItem} />;
-                } else if (item.type === 'image') {
-                    return <CraftiImage key={item.id} item={item as ImageItem} />;
-                } else if (item.type === 'draw') {
-                    return <CraftiDraw key={item.id} item={item as DrawItem} />;
-                } else if (item.type === 'custom') {
-                    return <CraftiCustom key={item.id} item={item as CustomItem} />;
-                } else if (item.type === 'diamond') {
-                    return <CraftiRhombus key={item.id} item={item as RectangleItem} />;
-                }
-                return null;
-            })}
-            {itemLayerRef.current && previewItem &&
+            {itemLayerRef.current &&
+                items?.map((item) => {
+                    if (item.type === 'rectangle') {
+                        return <CraftiRectangle key={item.id} item={item as RectangleItem} />;
+                    } else if (item.type === 'circle') {
+                        return <CraftiCircle key={item.id} item={item as CircleItem} />;
+                    } else if (item.type === 'line') {
+                        return <CraftiLine key={item.id} item={item as LineItem} />;
+                    } else if (item.type === 'arrow') {
+                        return <CraftiArrow key={item.id} item={item as LineItem} />;
+                    } else if (item.type === 'text') {
+                        return <CraftiText key={item.id} item={item as TextItem} />;
+                    } else if (item.type === 'image') {
+                        return <CraftiImage key={item.id} item={item as ImageItem} />;
+                    } else if (item.type === 'draw') {
+                        return <CraftiDraw key={item.id} item={item as DrawItem} />;
+                    } else if (item.type === 'custom') {
+                        return <CraftiCustom key={item.id} item={item as CustomItem} />;
+                    } else if (item.type === 'diamond') {
+                        return <CraftiRhombus key={item.id} item={item as RectangleItem} />;
+                    }
+                    return null;
+                })}
+            {itemLayerRef.current &&
+                previewItem &&
                 (previewItem.type === 'rectangle' ? (
                     <CraftiRectanglePreview key={previewItem.id + '-preview'} item={previewItem as RectangleItem} />
                 ) : previewItem.type === 'circle' ? (
@@ -119,20 +121,33 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
                     ref={transformerRef}
                     anchorCornerRadius={2}
                     padding={8}
-                    anchorStroke={'#76C89F'}
+                    anchorStroke={'#2e9f7e'}
                     anchorStrokeWidth={2}
-                    borderStroke={'#76C89F'}
+                    borderStroke={'#2e9f7e'}
                     borderStrokeWidth={2}
                 />
             )}
-            {itemLayerRef.current && (selectedItem?.type === 'line' || selectedItem?.type === 'arrow') &&
+            {itemLayerRef.current && selectedItem?.type === 'custom' && (selectedItem as CustomItem).tooltip.config && (
+                <Transformer
+                    ref={tooltipTransformerRef}
+                    anchorCornerRadius={2}
+                    padding={8}
+                    anchorStroke={'#2e9f7e'}
+                    anchorStrokeWidth={2}
+                    borderStroke={'#2e9f7e'}
+                    borderStrokeWidth={2}
+                    rotateEnabled={false}
+                />
+            )}
+            {itemLayerRef.current &&
+                (selectedItem?.type === 'line' || selectedItem?.type === 'arrow') &&
                 anchors.map((anchor, index) => (
                     <Circle
                         key={`anchor-${index}`}
                         id={`anchor-${index}`}
                         x={anchor.x}
                         y={anchor.y}
-                        radius={4}  
+                        radius={4}
                         stroke={'#76C89F'}
                         strokeWidth={2}
                         cornerRadius={1}

@@ -2,7 +2,7 @@ import { Button, Form, InputGroup, Modal } from 'react-bootstrap';
 import { type LibraryTooltipConfiguration } from '~/types/library';
 import React, { useState } from 'react';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
-import { type Tooltip } from '~/types/item';
+import { type TooltipSettings } from '~/types/item';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import { useShortcut } from '~/hooks/useShortcut';
 
@@ -12,11 +12,11 @@ interface CustomTooltipsEditorProps {
     handleEditorClose: () => void;
 }
 
-const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
+const TooltipsEditorBlock =({
     previewMode,
     selectedTooltip,
     handleEditorClose,
-}) => {
+}: CustomTooltipsEditorProps) => {
     const { requestConfirmation } = useConfirmation();
     const { updateTooltipConfiguration } = useIndexedDB();
     const { saveTooltipConfigurationToLibrary } = useShortcut();
@@ -27,7 +27,7 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
         return /^#([A-Fa-f0-9]{6})$/.test(hex);
     };
 
-    const showPreview = (tooltip: Tooltip) => {
+    const showPreview = (settings: TooltipSettings) => {
         return (
             <div className='d-flex flex-row mt-2'>
                 <div
@@ -38,11 +38,11 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                     <div
                         style={{
                             borderRadius: '5px',
-                            borderColor: tooltip.isStokeEnabled ? tooltip.strokeColor : 'transparent',
-                            borderStyle: tooltip.strokeStyle,
-                            borderWidth: tooltip.strokeWidth + 'px',
-                            backgroundColor: tooltip.isFillEnabled ? tooltip.fillColor : 'transparent',
-                            color: tooltip.isFillEnabled ? 'white' : 'black',
+                            borderColor: settings.isStokeEnabled ? settings.strokeColor : 'transparent',
+                            borderStyle: settings.strokeStyle,
+                            borderWidth: settings.strokeWidth + 'px',
+                            backgroundColor: settings.isFillEnabled ? settings.fillColor : 'transparent',
+                            color: settings.isFillEnabled ? 'white' : 'black',
                             height: '100px',
                             width: '150px',
                             textAlign: 'center',
@@ -61,11 +61,11 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                     <div
                         style={{
                             borderRadius: 'calc(5px * 3)',
-                            borderColor: tooltip.isStokeEnabled ? tooltip.strokeColor : 'transparent',
-                            borderStyle: tooltip.strokeStyle,
-                            borderWidth: 'calc(' + tooltip.strokeWidth + 'px * 3)',
-                            backgroundColor: tooltip.isFillEnabled ? tooltip.fillColor : 'transparent',
-                            color: tooltip.isFillEnabled ? 'white' : 'black',
+                            borderColor: settings.isStokeEnabled ? settings.strokeColor : 'transparent',
+                            borderStyle: settings.strokeStyle,
+                            borderWidth: 'calc(' + settings.strokeWidth + 'px * 3)',
+                            backgroundColor: settings.isFillEnabled ? settings.fillColor : 'transparent',
+                            color: settings.isFillEnabled ? 'white' : 'black',
                             height: 'calc(100px * 3)',
                             width: 'calc(150px * 3)',
                             textAlign: 'center',
@@ -125,6 +125,7 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                                 onClick={async () => {
                                     await requestConfirmation('Are you sure you want to save this configuration?').then(
                                         async (confirmed) => {
+                                            if (!confirmed) return;
                                             await updateTooltipConfiguration(alteredTooltip);
                                             handleEditorClose();
                                         },
@@ -143,10 +144,9 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                                 await requestConfirmation(
                                     'Are you sure you want to go back? Any unsaved changes will be lost.',
                                 ).then((confirmed) => {
-                                    if (confirmed) {
-                                        setAlteredTooltip(selectedTooltip);
-                                        handleEditorClose();
-                                    }
+                                    if (!confirmed) return;
+                                    setAlteredTooltip(selectedTooltip);
+                                    handleEditorClose();
                                 });
                             }}
                         >
@@ -157,19 +157,19 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
             </div>
             {alteredTooltip && (
                 <>
-                    {showPreview(alteredTooltip.tooltip)}
+                    {showPreview(alteredTooltip.settings)}
                     <Form>
                         <Form.Label>Border Color</Form.Label>
                         <InputGroup>
                             <Form.Control
                                 type='text'
-                                value={alteredTooltip.tooltip.strokeColor}
+                                value={alteredTooltip.settings.strokeColor}
                                 disabled={previewMode}
                                 onChange={(e) => {
                                     setAlteredTooltip({
                                         ...alteredTooltip,
-                                        tooltip: {
-                                            ...alteredTooltip.tooltip,
+                                        settings: {
+                                            ...alteredTooltip.settings,
                                             strokeColor: e.target.value,
                                         },
                                     });
@@ -178,16 +178,16 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                             <Form.Control
                                 type='color'
                                 value={
-                                    isValidHex(alteredTooltip.tooltip.strokeColor)
-                                        ? alteredTooltip.tooltip.strokeColor
+                                    isValidHex(alteredTooltip.settings.strokeColor ?? '')
+                                        ? alteredTooltip.settings.strokeColor
                                         : '#000000'
                                 }
                                 disabled={previewMode}
                                 onChange={(e) => {
                                     setAlteredTooltip({
                                         ...alteredTooltip,
-                                        tooltip: {
-                                            ...alteredTooltip.tooltip,
+                                        settings: {
+                                            ...alteredTooltip.settings,
                                             strokeColor: e.target.value,
                                         },
                                     });
@@ -197,13 +197,13 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                         <Form.Label>Border Style</Form.Label>
                         <InputGroup>
                             <Form.Select
-                                value={alteredTooltip.tooltip.strokeStyle}
+                                value={alteredTooltip.settings.strokeStyle}
                                 disabled={previewMode}
                                 onChange={(e) => {
                                     setAlteredTooltip({
                                         ...alteredTooltip,
-                                        tooltip: {
-                                            ...alteredTooltip.tooltip,
+                                        settings: {
+                                            ...alteredTooltip.settings,
                                             strokeStyle: e.target.value,
                                         },
                                     });
@@ -218,13 +218,13 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                         <InputGroup>
                             <Form.Control
                                 type='number'
-                                value={alteredTooltip.tooltip.strokeWidth}
+                                value={alteredTooltip.settings.strokeWidth}
                                 disabled={previewMode}
                                 onChange={(e) => {
                                     setAlteredTooltip({
                                         ...alteredTooltip,
-                                        tooltip: {
-                                            ...alteredTooltip.tooltip,
+                                        settings: {
+                                            ...alteredTooltip.settings,
                                             strokeWidth: e.target.value as unknown as number,
                                         },
                                     });
@@ -236,16 +236,16 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                             <Form.Control
                                 type='text'
                                 value={
-                                    isValidHex(alteredTooltip.tooltip.fillColor)
-                                        ? alteredTooltip.tooltip.fillColor
+                                    isValidHex(alteredTooltip.settings.fillColor ?? '')
+                                        ? alteredTooltip.settings.fillColor
                                         : '#000000'
                                 }
                                 disabled={previewMode}
                                 onChange={(e) => {
                                     setAlteredTooltip({
                                         ...alteredTooltip,
-                                        tooltip: {
-                                            ...alteredTooltip.tooltip,
+                                        settings: {
+                                            ...alteredTooltip.settings,
                                             fillColor: e.target.value,
                                         },
                                     });
@@ -253,13 +253,13 @@ const TooltipsEditorBlock: React.FC<CustomTooltipsEditorProps> = ({
                             />
                             <Form.Control
                                 type='color'
-                                value={alteredTooltip.tooltip.fillColor}
+                                value={alteredTooltip.settings.fillColor}
                                 disabled={previewMode}
                                 onChange={(e) => {
                                     setAlteredTooltip({
                                         ...alteredTooltip,
-                                        tooltip: {
-                                            ...alteredTooltip.tooltip,
+                                        settings: {
+                                            ...alteredTooltip.settings,
                                             fillColor: e.target.value,
                                         },
                                     });

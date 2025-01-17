@@ -9,6 +9,7 @@ import { addItem, addNotification, setIsLibraryOpen, setSelectedItem } from '~/l
 import { useAppDispatch } from '~/lib/store/hooks';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import { useShortcut } from '~/hooks/useShortcut';
+import { validateItem } from '~/lib/validate/validateItem';
 
 const LibraryItemBlock: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -23,7 +24,7 @@ const LibraryItemBlock: React.FC = () => {
     useEffect(() => {
         const loadItems = async () => {
             const items = await getItems();
-            setLoadedItems(items);
+            setLoadedItems(items.filter((item) => validateItem(JSON.stringify(item)).status));
         };
 
         void loadItems();
