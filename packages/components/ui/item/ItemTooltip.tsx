@@ -2,7 +2,7 @@ import { type TooltipLine, type CustomItem } from '~/types/item';
 import { Text, Group, Rect } from 'react-konva';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useStage } from '~/providers/StageProvider';
-import type Konva from 'konva';
+import Konva from 'konva';
 import { useItem } from '~/hooks/useItem';
 import { useAppSelector } from '~/lib/store/hooks';
 import { useMath } from '~/hooks/useMath';
@@ -34,6 +34,12 @@ const minecraftColorMap: Record<string, string> = {
         ][parseInt(key, 16)];
         return { ...acc, [`§${key}`]: hex, [`&${key}`]: hex };
     }, {}),
+};
+
+const PADDING = {
+    horizontal: 10,
+    vertical: 8,
+    lineSpacing: 2,
 };
 
 const ItemTooltip = ({ item }: ItemTooltipProps) => {
@@ -183,37 +189,66 @@ const ItemTooltip = ({ item }: ItemTooltipProps) => {
         [item, updateItem],
     );
 
-    const parseTextWithColors = (line: TooltipLine): Array<{ text: string; color: string; x: number }> => {
-        const parts = line.text.split(/([§&][0-9a-f]|#[0-9a-fA-F]{6})/).filter(Boolean);
-        const textParts: Array<{ text: string; color: string; x: number }> = [];
+    const getTextWidth = (text: string, fontSize: number, fontFamily: string, fontStyle?: string) => {
+        const tempText = new Konva.Text({
+            text,
+            fontSize,
+            fontFamily,
+            fontStyle,
+        });
+        return tempText.width();
+    };
+
+    const parseTextWithColors = (
+        line: TooltipLine,
+        tooltipWidth: number,
+    ): Array<{ text: string; color: string; x: number }> => {
+        const colorCodes = line.text.match(/(?:[§&][0-9a-f]|#[0-9a-fA-F]{6})/g) ?? [];
+        const textParts = line.text.split(/[§&][0-9a-f]|#[0-9a-fA-F]{6}/);
+        const result: Array<{ text: string; color: string; x: number }> = [];
         let currentColor = '#FFFFFF';
         let currentX = 0;
 
-        const minecraftColorRegex = /[§&][0-9a-f]/;
-        const hexColorRegex = /#[0-9a-fA-F]{6}/;
+        const totalWidth = textParts.reduce(
+            (acc, text) => acc + getTextWidth(text, line.fontSize || 14, line.fontFamily ?? 'Arial', line.fontEffect),
+            0,
+        );
 
-        parts.forEach((part) => {
-            if (minecraftColorRegex.test(part)) {
-                currentColor = minecraftColorMap[part] ?? '#FFFFFF';
-            } else if (hexColorRegex.test(part)) {
-                currentColor = part;
-            } else {
-                textParts.push({
-                    text: part,
+        if (line.textAlign === 'center') {
+            currentX = (tooltipWidth - totalWidth) / 2;
+        } else if (line.textAlign === 'right') {
+            currentX = tooltipWidth - totalWidth - PADDING.horizontal;
+        } else {
+            currentX = PADDING.horizontal;
+        }
+
+        textParts.forEach((text, index) => {
+            if (text) {
+                const textWidth = getTextWidth(text, line.fontSize || 14, line.fontFamily ?? 'Arial', line.fontEffect);
+                result.push({
+                    text,
                     color: currentColor,
                     x: currentX,
                 });
-                currentX += part.length * (line.fontSize || 14) * 0.6;
+                currentX += textWidth;
+            }
+            if (colorCodes[index]) {
+                const colorCode = colorCodes[index];
+                if (colorCode.startsWith('#')) {
+                    currentColor = colorCode;
+                } else {
+                    currentColor = minecraftColorMap[colorCode] ?? '#FFFFFF';
+                }
             }
         });
 
-        return textParts;
+        return result;
     };
 
     const renderDisplayName = () => {
         if (!item.displayName) return null;
 
-        const textParts = parseTextWithColors(item.displayName);
+        const textParts = parseTextWithColors(item.displayName, item.tooltip.size.width);
         const fontSize = item.displayName.fontSize || 14;
 
         return textParts.map((part, index) => (
@@ -221,12 +256,13 @@ const ItemTooltip = ({ item }: ItemTooltipProps) => {
                 key={`name-${index}`}
                 text={part.text}
                 x={tooltipPosition.x + part.x}
-                y={tooltipPosition.y + 5}
+                y={tooltipPosition.y + PADDING.vertical}
                 fontSize={fontSize}
                 fill={part.color}
                 fontStyle={item.displayName?.fontEffect}
                 fontFamily={item.displayName?.fontFamily ?? 'Arial'}
                 textDecoration={item.displayName?.fontDecoration ?? ''}
+                width={item.tooltip.size.width}
             />
         ));
     };
@@ -235,9 +271,9 @@ const ItemTooltip = ({ item }: ItemTooltipProps) => {
         if (!item.lore) return null;
 
         return item.lore.map((line, lineIndex) => {
-            const textParts = parseTextWithColors(line);
+            const textParts = parseTextWithColors(line, item.tooltip.size.width);
             const fontSize = line.fontSize || 14;
-            const yOffset = (lineIndex + 1) * (fontSize + 4) + 10;
+            const yOffset = (lineIndex + 1) * (fontSize + PADDING.lineSpacing) + PADDING.vertical;
 
             return textParts.map((part, partIndex) => (
                 <Text
@@ -250,6 +286,7 @@ const ItemTooltip = ({ item }: ItemTooltipProps) => {
                     fontStyle={line.fontEffect}
                     fontFamily={line.fontFamily ?? 'Arial'}
                     textDecoration={line.fontDecoration ?? ''}
+                    width={item.tooltip.size.width}
                 />
             ));
         });

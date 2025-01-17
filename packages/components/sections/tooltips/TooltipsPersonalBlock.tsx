@@ -9,6 +9,7 @@ import type { RootState } from '~/lib/store/store';
 import { selectItemById, setIsCustomTooltipsOpen, setItem, setSelectedItem } from '~/lib/store/features/appSlice';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import { useShortcut } from '~/hooks/useShortcut';
+import { useItem } from '~/hooks/useItem';
 
 interface TooltipsPersonalBlockProps {
     selectedTooltip: LibraryTooltipConfiguration | null;
@@ -22,6 +23,7 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
     handleEditorOpen,
 }) => {
     const dispatch = useAppDispatch();
+    const { updateItem } = useItem();
     const { requestConfirmation } = useConfirmation();
     const { getTooltipConfigurations, deleteTooltipConfiguration } = useIndexedDB();
     const { exportTooltipConfiguration, importTooltipConfiguration } = useShortcut();
@@ -65,12 +67,11 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
             ...currentItem,
             tooltip: {
                 ...(currentItem as CustomItem).tooltip,
-                settings: selectedTooltip.settings,
+                config: selectedTooltip,
             } as Tooltip,
         };
 
-        dispatch(setItem(item));
-        dispatch(setSelectedItem(item.id));
+        updateItem(item, currentItem);
 
         setSelectedTooltip(null);
         dispatch(setIsCustomTooltipsOpen(false));
