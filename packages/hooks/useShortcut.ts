@@ -24,11 +24,13 @@ import {
     setIsSaved,
     setItems,
     addItems,
+    selectItemById,
 } from '~/lib/store/features/appSlice';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
 import createCUID from '~/lib/cuid/createCUID';
 import { useStorage } from '~/providers/StorageProvider';
 import { useItem } from './useItem';
+import { fixItem, validateItem } from '~/lib/validate/validateItem';
 
 export function useShortcut() {
     const dispatch = useAppDispatch();
@@ -48,6 +50,7 @@ export function useShortcut() {
     const board = useAppSelector((state: RootState) => state.app.board);
     const items = useAppSelector(selectAllItems);
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
     const copiedItem = useAppSelector((state: RootState) => state.app.copiedItem);
     const history = useAppSelector((state: RootState) => state.app.history);
     const selectedTool = useAppSelector((state: RootState) => state.app.selectedTool);
@@ -116,34 +119,34 @@ export function useShortcut() {
         dispatch(
             addToHistory({
                 type: 'delete',
-                previousSnapshots: [selectedItem],
+                previousSnapshots: [currentItem],
             }),
         );
-        if (type === 'cloud') markForDeletion(selectedItem.id);
-        dispatch(deleteLocalItem(selectedItem.id));
+        if (type === 'cloud') markForDeletion(currentItem.id);
+        dispatch(deleteLocalItem(currentItem.id));
         dispatch(setSelectedItem(null));
-        handleItemSave(items.filter((item) => item.id !== selectedItem.id));
+        handleItemSave(items.filter((item) => item.id !== currentItem.id));
     }
 
     function copy() {
-        if (!selectedItem) return;
-        dispatch(setCopiedItem(selectedItem));
+        if (!currentItem) return;
+        dispatch(setCopiedItem(currentItem));
     }
 
     async function cut() {
-        if (!selectedItem) return;
-        dispatch(setCopiedItem(selectedItem));
-        if (type === 'cloud') markForDeletion(selectedItem.id);
-        dispatch(deleteLocalItem(selectedItem.id));
+        if (!currentItem) return;
+        dispatch(setCopiedItem(currentItem));
+        if (type === 'cloud') markForDeletion(currentItem.id);
+        dispatch(deleteLocalItem(currentItem.id));
         dispatch(setSelectedItem(null));
-        handleItemSave(items.filter((item) => item.id !== selectedItem.id));
+        handleItemSave(items.filter((item) => item.id !== currentItem.id));
     }
 
     function paste() {
         if (!copiedItem) return;
         const newItem = { ...copiedItem, id: createCUID(), attachments: [] };
         dispatch(addItem(newItem));
-        dispatch(setSelectedItem(newItem));
+        dispatch(setSelectedItem(newItem.id));
         dispatch(
             addToHistory({
                 type: 'create',
@@ -340,7 +343,7 @@ export function useShortcut() {
     }
 
     async function saveItemToLibrary() {
-        if (!selectedItem) {
+        if (!currentItem) {
             dispatch(
                 addNotification({
                     id: createCUID(),
@@ -351,7 +354,7 @@ export function useShortcut() {
             );
             return;
         }
-        await saveItem(selectedItem)
+        await saveItem(currentItem)
             .then(() => {
                 dispatch(
                     addNotification({
@@ -375,7 +378,7 @@ export function useShortcut() {
     }
 
     async function exportItem() {
-        if (!selectedItem) {
+        if (!currentItem) {
             dispatch(
                 addNotification({
                     id: createCUID(),
@@ -387,7 +390,7 @@ export function useShortcut() {
             return;
         }
         try {
-            const data = JSON.stringify(selectedItem);
+            const data = JSON.stringify(currentItem);
             await saveCustomFile('Craftidraw Item', data, 'application/board', '.cditem');
             dispatch(
                 addNotification({
@@ -414,9 +417,17 @@ export function useShortcut() {
         try {
             const file = await uploadCustomFile('application/board', '.cditem');
             const text = await file.text();
-            const item = JSON.parse(text);
+            let item = JSON.parse(text);
 
-            await saveItem(item);
+            if(!validateItem(text as string).status) {
+                const fixedItem = fixItem(text as string);
+                if(fixedItem) {
+                    item = fixedItem;
+                } else {
+                    throw new Error('Failed to fix item');
+                }
+            }
+            await saveItem(item as Item);
 
             dispatch(
                 addNotification({
@@ -548,7 +559,7 @@ export function useShortcut() {
 
     async function saveTooltipConfigurationToLibrary(configuration: LibraryTooltipConfiguration) {
         try {
-            await saveTooltipConfiguration(configuration.tooltip, configuration.name);
+            await saveTooltipConfiguration(configuration.settings, configuration.name);
             dispatch(
                 addNotification({
                     id: createCUID(),
@@ -564,7 +575,7 @@ export function useShortcut() {
 
     async function exportTooltipConfiguration(configuration: LibraryTooltipConfiguration) {
         const fileName = `${configuration.name}.cdtooltip`;
-        const fileContents = JSON.stringify(configuration.tooltip);
+        const fileContents = JSON.stringify(configuration.settings);
 
         try {
             await saveCustomFile(fileName, fileContents, 'application/tooltip', '.cdtooltip');
@@ -597,7 +608,7 @@ export function useShortcut() {
             const text = await file.text();
             const configuration = JSON.parse(text);
 
-            await saveTooltipConfiguration(configuration, file.name);
+            await saveTooltipConfiguration(configuration.settings, configuration.name);
 
             dispatch(
                 addNotification({

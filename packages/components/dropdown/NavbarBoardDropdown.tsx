@@ -2,6 +2,7 @@ import { Dropdown, DropdownButton } from 'react-bootstrap';
 import type { RootState } from '~/lib/store/store';
 import React from 'react';
 import {
+    selectItemById,
     setBoard,
     setHistory,
     setHistoryIndex,
@@ -27,6 +28,7 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
         useShortcut();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
 
     const handleWipe = async () => {
         const confirm = await requestConfirmation(
@@ -135,7 +137,7 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
             <Dropdown.Item
                 onClick={async (e) => {
                     e.preventDefault();
-                    if (selectedItem) await customExportItem(selectedItem);
+                    if (currentItem) await customExportItem(currentItem);
                 }}
             >
                 <i className='fa-solid fa-file-export'></i>

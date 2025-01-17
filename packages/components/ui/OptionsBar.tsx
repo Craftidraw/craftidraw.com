@@ -32,11 +32,11 @@ const OptionsBar = () => {
     const dispatch = useAppDispatch();
     const { updateItem } = useItem();
 
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
-    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem?.id ?? ''));
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
 
     const [alteredEntityText, setAlteredEntityText] = useState<string>(
-        selectedItem?.type === 'custom' ? (selectedItem as CustomItem).entity : '',
+        currentItem?.type === 'custom' ? (currentItem as CustomItem).entity : '',
     );
 
     const debounceEntityChange = useCallback(
@@ -65,8 +65,8 @@ const OptionsBar = () => {
     };
 
     const handleLoreFields = (item: Item) => {
-        if (!selectedItem) return;
-        if (selectedItem.type !== 'custom') return;
+        if (!currentItem) return;
+        if (currentItem.type !== 'custom') return;
 
         return (item as CustomItem).lore?.map((line, index) => (
             <InputGroup size='sm' key={'lore-input-' + index}>

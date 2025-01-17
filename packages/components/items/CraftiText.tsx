@@ -2,7 +2,7 @@ import { type RootState } from '~/lib/store/store';
 import React from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
-import { type Item, type TextItem } from '~/types/item';
+import { type TextItem } from '~/types/item';
 import { useAppSelector } from '~/lib/store/hooks';
 
 interface CraftiTextProps {
@@ -10,7 +10,7 @@ interface CraftiTextProps {
 }
 
 const CraftiText: React.FC<CraftiTextProps> = ({ item }) => {
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } =
         useItem();
 
@@ -48,7 +48,7 @@ const CraftiText: React.FC<CraftiTextProps> = ({ item }) => {
                 onDragStart={() => moveItemStart(item)}
                 onDragMove={(e) => moveItem(e, item)}
                 onDragEnd={() => moveItemEnd(item)}
-                draggable={selectedItem?.id === item.id}
+                draggable={selectedItem === item.id}
             />
         </Group>
     );

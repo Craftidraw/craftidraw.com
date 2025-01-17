@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import type { LibraryTooltipConfiguration } from '~/types/library';
 import { Button, Form } from 'react-bootstrap';
 import TooltipPreview from '../../ui/preview/TooltipPreview';
-import { Tooltip, type CustomItem } from '~/types/item';
+import { type Tooltip, type CustomItem } from '~/types/item';
 import { type RootState } from '~/lib/store/store';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
-import { setIsCustomTooltipsOpen, setItem, setSelectedItem } from '~/lib/store/features/appSlice';
+import { selectItemById, setIsCustomTooltipsOpen, setItem, setSelectedItem } from '~/lib/store/features/appSlice';
+import { useItem } from '~/hooks/useItem';
 
 interface TooltipsTemplatesBlockProps {
     selectedTooltip: LibraryTooltipConfiguration | null;
@@ -19,8 +20,10 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
     handleEditorOpen,
 }) => {
     const dispatch = useAppDispatch();
+    const { updateItem } = useItem();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
 
     const [templateTooltips, setTemplateTooltips] = useState<LibraryTooltipConfiguration[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -60,23 +63,22 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
         return () => {
             document.removeEventListener('click', handleClickOutside);
         };
-    }, [selectedTooltip]);
+    }, [setSelectedTooltip, selectedTooltip]);
 
     const handleTooltipSelect = () => {
         if (!selectedTooltip) return;
-        if (!selectedItem) return;
-        if (selectedItem.type !== 'custom') return;
+        if (!currentItem) return;
+        if (currentItem.type !== 'custom') return;
 
         const item = {
-            ...selectedItem,
+            ...currentItem,
             tooltip: {
-                ...(selectedItem as CustomItem).tooltip,
+                ...(currentItem as CustomItem).tooltip,
                 config: selectedTooltip,
             } as Tooltip,
         };
 
-        dispatch(setItem(item));
-        dispatch(setSelectedItem(item));
+        updateItem(item, currentItem);
 
         setSelectedTooltip(null);
         dispatch(setIsCustomTooltipsOpen(false));
@@ -88,7 +90,7 @@ const TooltipsTemplatesBlock: React.FC<TooltipsTemplatesBlockProps> = ({
                 <div className='d-flex flex-row ms-auto'>
                     {selectedTooltip && (
                         <>
-                            {selectedItem && selectedItem.type === 'custom' && (
+                            {currentItem && currentItem.type === 'custom' && (
                                 <Button
                                     title='Select this configuration'
                                     className='me-1'

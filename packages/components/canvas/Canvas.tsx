@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Stage } from 'react-konva';
-import { addItem, addToHistory, selectAllItems, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
+import { addItem, addToHistory, selectAllItems, selectItemById, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
 import type Konva from 'konva';
 import GridLayer from './GridLayer';
 import ItemLayer from './ItemLayer';
@@ -34,6 +34,7 @@ const Canvas = () => {
     const items = useAppSelector(selectAllItems);
     const selectedTool = useAppSelector((state: RootState) => state.app.selectedTool);
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
     const board = useAppSelector((state: RootState) => state.app.board);
     const isCustomExportsOpen = useAppSelector((state: RootState) => state.app.isCustomExportsOpen);
 
@@ -41,9 +42,9 @@ const Canvas = () => {
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
     useEffect(() => {
-        if (selectedItem && transformerRef.current && stageRef.current) {
+        if (currentItem && transformerRef.current && stageRef.current) {
             setTimeout(() => {
-                const selectedNode = stageRef.current?.findOne('#' + selectedItem.id);
+                const selectedNode = stageRef.current?.findOne('#' + currentItem.id);
                 if (selectedNode) {
                     transformerRef.current?.nodes([selectedNode]);
                 } else {
@@ -55,14 +56,14 @@ const Canvas = () => {
         }
 
         if (
-            selectedItem &&
+            currentItem &&
             tooltipTransformerRef.current &&
             stageRef.current &&
-            selectedItem.type === 'custom' &&
-            (selectedItem as CustomItem).tooltip.config
+            currentItem.type === 'custom' &&
+            (currentItem as CustomItem).tooltip.config
         ) {
             setTimeout(() => {
-                const selectedNode = stageRef.current?.findOne('#tooltip-' + selectedItem.id);
+                const selectedNode = stageRef.current?.findOne('#tooltip-' + currentItem.id);
                 if (selectedNode) {
                     tooltipTransformerRef.current?.nodes([selectedNode]);
                 } else {
@@ -70,7 +71,7 @@ const Canvas = () => {
                 }
             }, 10);
         }
-    }, [selectedItem, stageRef, transformerRef, tooltipTransformerRef, selectedItem?.version]);
+    }, [currentItem, stageRef, transformerRef, tooltipTransformerRef, currentItem?.version]);
 
     useKeyPress(' ', () => {
         if (isCustomExportsOpen) return;
@@ -394,7 +395,7 @@ const Canvas = () => {
         if (isDrawing && previewItem) {
             setIsDrawing(false);
             dispatch(addItem(previewItem));
-            dispatch(setSelectedItem(previewItem));
+            dispatch(setSelectedItem(previewItem.id));
             dispatch(setSelectedTool('pointer'));
             dispatch(
                 addToHistory({

@@ -32,7 +32,7 @@ import CraftiRhombus from '../items/CraftiRhombus';
 import { Circle, Layer, Transformer } from 'react-konva';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useItem } from '~/hooks/useItem';
-import { selectAllItems } from '~/lib/store/features/appSlice';
+import { selectAllItems, selectItemById } from '~/lib/store/features/appSlice';
 import { useAppSelector } from '~/lib/store/hooks';
 import { useStage } from '~/providers/StageProvider';
 
@@ -44,14 +44,16 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
     const { itemLayerRef, transformerRef, tooltipTransformerRef } = useStage();
     const { moveAnchorStart, moveAnchor, moveAnchorEnd } = useItem();
 
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
+    
     const items = useAppSelector(selectAllItems);
 
     const [anchors, setAnchors] = useState<{ x: number; y: number }[]>([]);
 
     const updateAnchors = useCallback(() => {
-        if (selectedItem?.type === 'line' || selectedItem?.type === 'arrow') {
-            const lineItem = selectedItem as LineItem;
+        if (currentItem?.type === 'line' || currentItem?.type === 'arrow') {
+            const lineItem = currentItem as LineItem;
             const newAnchors = lineItem.points.reduce((acc: Position[], point, index) => {
                 if (index % 2 === 0) {
                     const relativeX = lineItem.position.x ?? 0;
@@ -64,7 +66,7 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
         } else {
             setAnchors([]);
         }
-    }, [selectedItem]);
+    }, [currentItem]);
 
     useEffect(() => {
         updateAnchors();
@@ -116,7 +118,7 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
                 ) : previewItem.type === 'diamond' ? (
                     <CraftiRhombus key={previewItem.id + 'preview'} item={previewItem as RectangleItem} />
                 ) : null)}
-            {itemLayerRef.current && selectedItem?.type !== 'line' && selectedItem?.type !== 'arrow' && (
+            {itemLayerRef.current && currentItem?.type !== 'line' && currentItem?.type !== 'arrow' && (
                 <Transformer
                     ref={transformerRef}
                     anchorCornerRadius={2}
@@ -127,7 +129,7 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
                     borderStrokeWidth={2}
                 />
             )}
-            {itemLayerRef.current && selectedItem?.type === 'custom' && (selectedItem as CustomItem).tooltip.config && (
+            {itemLayerRef.current && currentItem?.type === 'custom' && (currentItem as CustomItem).tooltip.config && (
                 <Transformer
                     ref={tooltipTransformerRef}
                     anchorCornerRadius={2}
@@ -140,7 +142,7 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
                 />
             )}
             {itemLayerRef.current &&
-                (selectedItem?.type === 'line' || selectedItem?.type === 'arrow') &&
+                (currentItem?.type === 'line' || currentItem?.type === 'arrow') &&
                 anchors.map((anchor, index) => (
                     <Circle
                         key={`anchor-${index}`}
@@ -153,9 +155,9 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
                         cornerRadius={1}
                         fill={'white'}
                         draggable
-                        onDragStart={() => moveAnchorStart(selectedItem as LineItem)}
-                        onDragMove={(e) => moveAnchor(index, e, selectedItem as LineItem)}
-                        onDragEnd={() => moveAnchorEnd(index, selectedItem as LineItem)}
+                        onDragStart={() => moveAnchorStart(currentItem as LineItem)}
+                        onDragMove={(e) => moveAnchor(index, e, currentItem as LineItem)}
+                        onDragEnd={() => moveAnchorEnd(index, currentItem as LineItem)}
                     />
                 ))}
         </Layer>

@@ -61,7 +61,7 @@ const LibraryItemBlock: React.FC = () => {
         } as Item;
 
         dispatch(addItem(item));
-        dispatch(setSelectedItem(item));
+        dispatch(setSelectedItem(item.id));
         dispatch(
             addNotification({
                 id: createCUID(),

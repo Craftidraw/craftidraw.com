@@ -1,6 +1,6 @@
 import React from 'react';
 import { type RootState } from '~/lib/store/store';
-import { type Item, type LineItem } from '~/types/item';
+import { type LineItem } from '~/types/item';
 import { Arrow, Line } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
 import { useAppSelector } from '~/lib/store/hooks';
@@ -10,7 +10,7 @@ interface CraftiLineProps {
 }
 
 const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } = useItem();
 
     return (
@@ -36,7 +36,7 @@ const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
                         onDragStart={() => moveItemStart(item)}
                         onDragMove={(e) => moveItem(e, item)}
                         onDragEnd={() => moveItemEnd(item)}
-                        draggable={selectedItem?.id === item.id}
+                        draggable={selectedItem === item.id}
                         pointerAtBeginning={item.hasArrowTail}
                         pointerAtEnding={item.hasArrowHead}
                     />
@@ -61,7 +61,7 @@ const CraftiLine: React.FC<CraftiLineProps> = ({ item }) => {
                         onDragStart={() => moveItemStart(item)}
                         onDragMove={(e) => moveItem(e, item)}
                         onDragEnd={() => moveItemEnd(item)}
-                        draggable={selectedItem?.id === item.id}
+                        draggable={selectedItem === item.id}
                     />
                 </>
             )}

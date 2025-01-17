@@ -3,7 +3,7 @@ import { useItem } from '~/hooks/useItem';
 import React, { useState } from 'react';
 import useImage from 'use-image';
 import { Group, Image as KonvaImage, Rect } from 'react-konva';
-import type { CustomItem, Item } from '~/types/item';
+import type { CustomItem } from '~/types/item';
 import { setIsLibraryOpen } from '~/lib/store/features/appSlice';
 import { useAppSelector, useAppDispatch } from '~/lib/store/hooks';
 import ItemTooltip from '../ui/item/ItemTooltip';
@@ -16,7 +16,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
     const dispatch = useAppDispatch();
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } = useItem();
     const [image, status] = useImage(item.image?.data ?? '');
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const [showTooltip, setShowTooltip] = useState(false);
 
     const handleImageSelect = () => {
@@ -53,7 +53,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     onDragEnd={() => moveItemEnd(item)}
                     onMouseOver={() => setShowTooltip(true)}
                     onMouseOut={() => setShowTooltip(false)}
-                    draggable={selectedItem?.id === item.id}
+                    draggable={selectedItem === item.id}
                 />
             ) : (
                 <Rect
@@ -76,7 +76,7 @@ const CraftiCustom: React.FC<CraftiCustomProps> = ({ item }) => {
                     onDragStart={() => moveItemStart(item)}
                     onDragMove={(e) => moveItem(e, item)}
                     onDragEnd={() => moveItemEnd(item)}
-                    draggable={selectedItem?.id === item.id}
+                    draggable={selectedItem === item.id}
                 />
             )}
             {(item.showTooltip ?? showTooltip) && item.tooltip?.config && <ItemTooltip item={item} />}

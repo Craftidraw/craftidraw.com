@@ -17,7 +17,6 @@ const CraftiArrowPreview: React.FC<CraftiArrowProps> = ({ item }) => {
             itemType={item.type}
             pointerAtBeginning={item.hasArrowTail}
             pointerAtEnding={item.hasArrowHead}
-            draggable
         />
     );
 };

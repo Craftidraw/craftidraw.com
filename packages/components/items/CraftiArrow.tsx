@@ -2,7 +2,7 @@ import React from 'react';
 import type { RootState } from '~/lib/store/store';
 import { Arrow } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
-import type { Item, LineItem } from '~/types/item';
+import type { LineItem } from '~/types/item';
 import { useAppSelector } from '~/lib/store/hooks';
 
 interface CraftiArrowProps {
@@ -10,7 +10,7 @@ interface CraftiArrowProps {
 }
 
 const CraftiArrow: React.FC<CraftiArrowProps> = ({ item }) => {
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } = useItem();
 
     return (
@@ -33,7 +33,7 @@ const CraftiArrow: React.FC<CraftiArrowProps> = ({ item }) => {
             onDragStart={() => moveItemStart(item)}
             onDragMove={(e) => moveItem(e, item)}
             onDragEnd={() => moveItemEnd(item)}
-            draggable={selectedItem?.id === item.id}
+            draggable={selectedItem === item.id}
             pointerAtBeginning={item.hasArrowTail}
             pointerAtEnding={item.hasArrowHead}
         />

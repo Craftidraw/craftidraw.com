@@ -18,7 +18,7 @@ const BoardFooter: React.FC<UIFooterProps> = ({ stageRef }) => {
     const canvasZoom = useAppSelector((state: RootState) => state.app.canvasZoom);
 
     const handleSelect = (item: Item) => {
-        dispatch(setSelectedItem(item));
+        dispatch(setSelectedItem(item.id));
 
         if (stageRef.current) {
             const stage = stageRef.current;

@@ -16,7 +16,6 @@ const CraftiRhombusPreview: React.FC<CraftiRhombusPreviewProps> = ({ item }) => 
             rotation={45}
             stroke={item.strokeColor ? item.strokeColor : 'black'}
             itemType={item.type}
-            draggable
         />
     );
 };

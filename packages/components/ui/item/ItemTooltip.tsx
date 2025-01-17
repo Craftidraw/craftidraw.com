@@ -74,7 +74,7 @@ const ItemTooltip = ({ item }: ItemTooltipProps) => {
     }, [baseTooltipPosition, tooltipDragOffset]);
 
     const connectionPoints = useMemo(() => {
-        if (!selectedItem || selectedItem.id !== item.id) return null;
+        if (!selectedItem || selectedItem !== item.id) return null;
 
         const itemRect = {
             x: itemPosition.x,
@@ -285,7 +285,7 @@ const ItemTooltip = ({ item }: ItemTooltipProps) => {
                 }
                 strokeWidth={item.tooltip.config?.settings.strokeWidth ?? 1}
                 cornerRadius={item.tooltip.config?.settings.borderRadius ?? 5}
-                draggable={selectedItem?.id === item.id}
+                draggable={selectedItem === item.id}
                 onDragStart={onTooltipDragStart}
                 onDragMove={onTooltipDragMove}
                 onDragEnd={onTooltipDragEnd}

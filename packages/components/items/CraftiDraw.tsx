@@ -2,7 +2,7 @@ import React from 'react';
 import { type RootState } from '~/lib/store/store';
 import { Line } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
-import { type DrawItem, type Item } from '~/types/item';
+import { type DrawItem } from '~/types/item';
 import { useAppSelector } from '~/lib/store/hooks';
 
 interface CraftiDrawProps {
@@ -10,7 +10,7 @@ interface CraftiDrawProps {
 }
 
 const CraftiDraw: React.FC<CraftiDrawProps> = ({ item }) => {
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } =
         useItem();
 
@@ -35,7 +35,7 @@ const CraftiDraw: React.FC<CraftiDrawProps> = ({ item }) => {
             onDragStart={() => moveItemStart(item)}
             onDragMove={(e) => moveItem(e, item)}
             onDragEnd={() => moveItemEnd(item)}
-            draggable={selectedItem?.id === item.id}
+            draggable={selectedItem === item.id}
         />
     );
 };

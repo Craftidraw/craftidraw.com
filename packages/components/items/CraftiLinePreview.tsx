@@ -14,7 +14,6 @@ const CraftiLinePreview: React.FC<CraftiLineProps> = ({ item }) => {
             points={item.points}
             stroke={item.strokeColor ? item.strokeColor : 'black'}
             itemType={item.type}
-            draggable
         />
     );
 };

@@ -23,23 +23,25 @@ const notificationsAdapter = createEntityAdapter({
 interface AppState {
     workspace: Workspace | null;
     workspaces: EntityState<Workspace, string>;
+    items: EntityState<Item, string>;
+    notifications: EntityState<Notification, string>;
 
     board: Board;
-    items: EntityState<Item, string>;
     selectedTool: string;
-    selectedItem: Item | null;
+    selectedItem: string | null;
     selectedConfiguration: number | null;
     copiedItem: Item | null;
     previousTool: string | null;
+    canvasZoom: number;
+
     history: History;
+
     isAccountManagerOpen: boolean;
     isLibraryOpen: boolean;
     isCustomExportsOpen: boolean;
     isCustomTooltipsOpen: boolean;
-    canvasZoom: number;
-    notifications: EntityState<Notification, string>;
+
     isSaved: 'saved' | 'unsaved' | 'pending' | 'failure';
-    isUploaded: 'saved' | 'unsaved' | 'pending' | 'failure';
 }
 
 const initialState: AppState = {
@@ -77,7 +79,6 @@ const initialState: AppState = {
     canvasZoom: 1,
     notifications: notificationsAdapter.getInitialState(),
     isSaved: 'saved',
-    isUploaded: 'saved',
 };
 
 export const appSlice = createSlice({
@@ -182,7 +183,7 @@ export const appSlice = createSlice({
                 });
             }
         },
-        setSelectedItem: (state, action: PayloadAction<Item | null>) => {
+        setSelectedItem: (state, action: PayloadAction<string | null>) => {
             state.selectedItem = action.payload;
         },
         setSelectedTool: (state, action: PayloadAction<string>) => {
@@ -234,9 +235,6 @@ export const appSlice = createSlice({
         setIsSaved: (state, action: PayloadAction<'saved' | 'unsaved' | 'pending' | 'failure'>) => {
             state.isSaved = action.payload;
         },
-        setIsUploaded: (state, action: PayloadAction<'saved' | 'unsaved' | 'pending' | 'failure'>) => {
-            state.isUploaded = action.payload;
-        },
     },
 });
 
@@ -275,7 +273,6 @@ export const {
     addNotification,
     removeNotification,
     setIsSaved,
-    setIsUploaded,
 } = appSlice.actions;
 
 export const {

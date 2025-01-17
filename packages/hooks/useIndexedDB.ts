@@ -1,4 +1,4 @@
-import { type Item, type Tooltip } from '~/types/item';
+import { TooltipSettings, type Item, type Tooltip } from '~/types/item';
 import {
     type LibraryExportConfiguration,
     type LibraryImage,
@@ -209,13 +209,13 @@ export function useIndexedDB() {
         });
     }
 
-    async function saveTooltipConfiguration(tooltip: Tooltip, name: string): Promise<void> {
+    async function saveTooltipConfiguration(settings: TooltipSettings, name: string): Promise<void> {
         const db = await openTooltipConfigurations();
         const tx = db.transaction('tooltipConfigurations', 'readwrite');
         const store = tx.objectStore('tooltipConfigurations');
         const tooltipInput = {
             name: name,
-            tooltip: tooltip,
+            settings: settings,
         };
         store.put(tooltipInput);
         return await new Promise<void>((resolve, reject) => {
@@ -235,11 +235,11 @@ export function useIndexedDB() {
         });
     }
 
-    async function getTooltipConfiguration(name: string): Promise<any> {
+    async function getTooltipConfiguration(name: string): Promise<LibraryTooltipConfiguration> {
         const db = await openTooltipConfigurations();
         const tx = db.transaction('tooltipConfigurations', 'readonly');
         const store = tx.objectStore('tooltipConfigurations');
-        return await new Promise<any>((resolve, reject) => {
+        return await new Promise<LibraryTooltipConfiguration>((resolve, reject) => {
             const request = store.get(name);
             request.onsuccess = () => resolve(request.result as LibraryTooltipConfiguration);
             request.onerror = () => reject(request.error);

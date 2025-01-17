@@ -34,7 +34,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
 
     const debounceLoreChange = useCallback(
         debounce((item: CustomItem, index: number, text: string) => {
-            const newLore = [...(item.lore || [])];
+            const newLore = [...(item.lore ?? [])];
             newLore[index] = { ...newLore[index], text: text };
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
