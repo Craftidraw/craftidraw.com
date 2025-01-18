@@ -11,13 +11,13 @@ import type { RootState } from '~/lib/store/store';
 import createCUID from '~/lib/cuid/createCUID';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import { addNotification, selectItemById, setIsLibraryOpen } from '~/lib/store/features/appSlice';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useFileOperations } from '~/hooks/useFileOperations';
 
 const LibraryImageBlock: React.FC = () => {
     const dispatch = useAppDispatch();
     const { updateItem } = useItem();
     const { getImages, deleteImage } = useIndexedDB();
-    const { importImage } = useShortcut();
+    const { importImage } = useFileOperations();
     const { requestConfirmation } = useConfirmation();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
 import { type TooltipSettings } from '~/types/item';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useFileOperations } from '~/hooks/useFileOperations';
 
 interface CustomTooltipsEditorProps {
     previewMode: boolean;
@@ -19,7 +19,7 @@ const TooltipsEditorBlock =({
 }: CustomTooltipsEditorProps) => {
     const { requestConfirmation } = useConfirmation();
     const { updateTooltipConfiguration } = useIndexedDB();
-    const { saveTooltipConfigurationToLibrary } = useShortcut();
+    const { saveTooltipConfigurationToLibrary } = useFileOperations();
 
     const [alteredTooltip, setAlteredTooltip] = useState<LibraryTooltipConfiguration>(selectedTooltip);
 

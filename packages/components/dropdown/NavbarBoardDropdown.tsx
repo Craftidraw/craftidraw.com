@@ -11,11 +11,11 @@ import {
     setIsLibraryOpen,
 } from '~/lib/store/features/appSlice';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
-import { useShortcut } from '~/hooks/useShortcut';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import createCUID from '~/lib/cuid/createCUID';
 import type { Board } from '~/types/board';
 import type { HistoryAction } from '~/types/history';
+import { useFileOperations } from '~/hooks/useFileOperations';
 
 interface NavbarBoardDropdownProps {
     isLocal: boolean;
@@ -25,7 +25,7 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
     const dispatch = useAppDispatch();
     const { requestConfirmation } = useConfirmation();
     const { exportBoard, importBoard, saveItemToLibrary, importImage, exportItem, importItem, customExportItem } =
-        useShortcut();
+        useFileOperations();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));

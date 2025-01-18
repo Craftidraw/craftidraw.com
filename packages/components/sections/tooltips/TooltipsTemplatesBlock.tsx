@@ -5,7 +5,7 @@ import TooltipPreview from '../../ui/preview/TooltipPreview';
 import { type Tooltip, type CustomItem } from '~/types/item';
 import { type RootState } from '~/lib/store/store';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
-import { selectItemById, setIsCustomTooltipsOpen, setItem, setSelectedItem } from '~/lib/store/features/appSlice';
+import { selectItemById, setIsCustomTooltipsOpen } from '~/lib/store/features/appSlice';
 import { useItem } from '~/hooks/useItem';
 
 interface TooltipsTemplatesBlockProps {

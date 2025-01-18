@@ -23,11 +23,12 @@ import { useZoom } from '~/hooks/useZoom';
 import { useShortcut } from '~/hooks/useShortcut';
 import { useStage } from '~/providers/StageProvider';
 import { useItem } from '~/hooks/useItem';
+import { useItemOperations } from '~/hooks/useItemOperations';
 
 const Canvas = () => {
     const dispatch = useAppDispatch();
-    const { useKeyPress, useKeyRelease, cut, paste, redo, copy, remove, undo, quickMoveUp, quickMoveDown } =
-        useShortcut();
+    const { useKeyPress, useKeyRelease, quickMoveUp, quickMoveDown } = useShortcut();
+    const { copy, cut, paste, remove, undo, redo } = useItemOperations();
     const { stageRef, transformerRef, tooltipTransformerRef } = useStage();
     const { handleItemSave } = useItem();
 

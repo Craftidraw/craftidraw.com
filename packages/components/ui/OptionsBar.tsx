@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { RootState } from '~/lib/store/store';
 import type { CustomItem, Item } from '~/types/item';
 import { Button, Form, InputGroup } from 'react-bootstrap';

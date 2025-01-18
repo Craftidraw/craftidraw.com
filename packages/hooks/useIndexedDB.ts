@@ -1,4 +1,4 @@
-import { TooltipSettings, type Item, type Tooltip } from '~/types/item';
+import { type TooltipSettings, type Item } from '~/types/item';
 import {
     type LibraryExportConfiguration,
     type LibraryImage,
