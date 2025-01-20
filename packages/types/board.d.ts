@@ -10,13 +10,13 @@ export interface Board {
     snapIncrement: number;
     showItems: boolean;
     theme: 'system' | 'light' | 'dark';
-    gridLineColor: string;
+    gridLineColor?: string;
     gridLineWidth: number;
     gridLineOpacity: number;
-    gridSubLineColor: string;
+    gridSubLineColor?: string;
     gridSubLineWidth: number;
     gridSubLineOpacity: number;
-    backgroundColor: string;
+    backgroundColor?: string;
 }
 
 export interface BoardShell {

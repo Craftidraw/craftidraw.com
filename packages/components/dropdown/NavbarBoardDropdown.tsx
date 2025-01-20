@@ -16,6 +16,7 @@ import createCUID from '~/lib/cuid/createCUID';
 import type { Board } from '~/types/board';
 import type { HistoryAction } from '~/types/history';
 import { useFileOperations } from '~/hooks/useFileOperations';
+import { DEFAULT_BOARD } from '~/utils/defaults';
 
 interface NavbarBoardDropdownProps {
     isLocal: boolean;
@@ -37,22 +38,8 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
         if (!confirm) return;
 
         const board: Board = {
+            ...structuredClone(DEFAULT_BOARD),
             id: createCUID(),
-            name: 'New Board',
-            enableGrid: true,
-            snapToGrid: false,
-            gridSpacing: 100,
-            subGridSpacing: 20,
-            snapIncrement: 5,
-            showItems: false,
-            theme: 'system',
-            gridLineColor: '#000000',
-            gridLineWidth: 1,
-            gridLineOpacity: 0.1,
-            gridSubLineColor: '#000000',
-            gridSubLineWidth: 1,
-            gridSubLineOpacity: 0.05,
-            backgroundColor: '#ffffff',
         };
 
         localStorage.setItem('board', JSON.stringify(board));

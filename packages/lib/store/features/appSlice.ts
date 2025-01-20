@@ -6,6 +6,7 @@ import type { Notification } from '~/types/notification';
 import type { RootState } from '../store';
 import createCUID from '~/lib/cuid/createCUID';
 import type { Workspace } from '~/types/workspace';
+import { DEFAULT_BOARD } from '~/utils/defaults';
 
 const workspacesAdapter = createEntityAdapter({
     selectId: (workspace: Workspace) => workspace.id,
@@ -48,22 +49,8 @@ const initialState: AppState = {
     workspace: null,
     workspaces: workspacesAdapter.getInitialState(),
     board: {
+        ...structuredClone(DEFAULT_BOARD),
         id: createCUID(),
-        name: 'New Board',
-        enableGrid: true,
-        snapToGrid: false,
-        gridSpacing: 100,
-        subGridSpacing: 20,
-        snapIncrement: 5,
-        showItems: false,
-        theme: 'system',
-        gridLineColor: '#000000',
-        gridLineWidth: 1,
-        gridLineOpacity: 0.1,
-        gridSubLineColor: '#000000',
-        gridSubLineWidth: 1,
-        gridSubLineOpacity: 0.05,
-        backgroundColor: '#ffffff',
     },
     items: itemsAdapter.getInitialState(),
     selectedTool: 'pointer',
@@ -112,22 +99,8 @@ export const appSlice = createSlice({
         },
         unsetBoard: (state) => {
             state.board = {
+                ...structuredClone(DEFAULT_BOARD),
                 id: createCUID(),
-                name: 'New Board',
-                enableGrid: true,
-                snapToGrid: false,
-                gridSpacing: 100,
-                subGridSpacing: 20,
-                snapIncrement: 5,
-                showItems: false,
-                theme: 'system',
-                gridLineColor: '#000000',
-                gridLineWidth: 1,
-                gridLineOpacity: 0.1,
-                gridSubLineColor: '#000000',
-                gridSubLineWidth: 1,
-                gridSubLineOpacity: 0.05,
-                backgroundColor: '#ffffff',
             };
             state.items = itemsAdapter.getInitialState();
         },

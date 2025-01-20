@@ -10,3 +10,7 @@
 # IDE
 /.idea/
 /.vscode/
+/.hintrc
+
+/packages/assets/fonts/
+

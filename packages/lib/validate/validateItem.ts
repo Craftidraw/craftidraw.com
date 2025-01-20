@@ -158,6 +158,7 @@ const ItemSchema = z.discriminatedUnion('type', [
     DrawSchema,
     CustomSchema
 ]);
+
 interface ValidationResult {
     status: boolean;
     item: Item | null;

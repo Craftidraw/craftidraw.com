@@ -1,5 +1,5 @@
 import { Button, Form } from 'react-bootstrap';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useItem } from '~/hooks/useItem';
 import { debounce } from 'lodash';
 import type { CustomItem, TooltipLine } from '~/types/item';
@@ -19,6 +19,10 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
     );
     const [showPopover, setShowPopover] = useState(false);
     const [buttonRef, setButtonRef] = useState<HTMLButtonElement | null>(null);
+
+    useEffect(() => {
+        setAlteredText(type === 'display' ? (item.displayName?.text ?? '') : (item.lore?.[index]?.text ?? ''));
+    }, [item, index, type]);
 
     const debounceDisplayNameChange = useCallback(
         debounce((item: CustomItem, text: string) => {
@@ -416,9 +420,6 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
             </PopoverPortal>
             {type === 'lore' && (
                 <>
-                    <Button variant='secondary' onClick={() => {}}>
-                        <i className='fa-solid fa-up-down-left-right'></i>
-                    </Button>
                     <Button variant='secondary' onClick={() => handleLoreRemove(item, index)}>
                         <i className='fa-solid fa-trash'></i>
                     </Button>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Layer, Line } from 'react-konva';
 import type { RootState } from '~/lib/store/store';
 import { useAppSelector } from '~/lib/store/hooks';
@@ -14,14 +14,25 @@ const GridLayer: React.FC<GridProps> = ({ stagePos }) => {
     const zoom = useAppSelector((state: RootState) => state.app.canvasZoom);
     const gridStep = board.gridSpacing;
     const subGridStep = board.subGridSpacing;
-    const color = board.gridLineColor;
-    const subColor = board.gridSubLineColor;
+    const color = board.gridLineColor ?? '#808080';
+    const subColor = board.gridSubLineColor ?? '#808080';
+    const [viewport, setViewport] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        const updateSize = () => {
+            setViewport({ width: window.innerWidth, height: window.innerHeight });
+        };
+
+        updateSize();
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
 
     const lines = useMemo(() => {
         const newLines: JSX.Element[] = [];
 
-        const visibleWidth = window.innerWidth / zoom;
-        const visibleHeight = window.innerHeight / zoom;
+        const visibleWidth = viewport.width / zoom;
+        const visibleHeight = viewport.height / zoom;
 
         const buffer = Math.max(visibleWidth, visibleHeight) * 2;
 
@@ -87,13 +98,9 @@ const GridLayer: React.FC<GridProps> = ({ stagePos }) => {
         }
 
         return newLines;
-    }, [stagePos, zoom, gridStep, subGridStep, color, subColor, board]);
+    }, [viewport.width, viewport.height, zoom, stagePos.x, stagePos.y, gridStep, color, board.gridLineWidth, board.gridLineOpacity, board.gridSubLineWidth, board.gridSubLineOpacity, subGridStep, subColor]);
 
-    return <Layer listening={false}>{lines.map((line) => (
-        <>
-            {line}
-        </>
-    ))}</Layer>;
+    return <Layer listening={false}>{lines}</Layer>;
 };
 
 export default GridLayer;

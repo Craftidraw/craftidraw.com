@@ -1,4 +1,4 @@
-import { saveCustomFile, uploadCustomFile, uploadFile } from '~/utils/fileUtil';
+import { saveCustomFile, uploadCustomFile, uploadFile } from '~/utils/file';
 import { addNotification, selectAllItems, selectItemById, setBoard } from '~/lib/store/features/appSlice';
 import createCUID from '~/lib/cuid/createCUID';
 import type { Notification } from '~/types/notification';

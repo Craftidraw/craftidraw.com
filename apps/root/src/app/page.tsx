@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import createCUID from '~/lib/cuid/createCUID';
 import { useAppDispatch } from '~/lib/store/hooks';
 import { setBoard, setItems, updateBoard } from '~/lib/store/features/appSlice';
@@ -13,48 +13,37 @@ import NotificationAnchor from '~/components/ui/NotificationManagement';
 import LibraryAnchor from '~/components/modal/anchors/LibraryAnchor';
 import CustomExportsAnchor from '~/components/modal/anchors/CustomExportsAnchor';
 import CustomTooltipsAnchor from '~/components/modal/anchors/CustomTooltipsAnchor';
-import type Konva from 'konva';
 import dynamic from 'next/dynamic';
 import { StageProvider } from '~/providers/StageProvider';
 import { fixItem, validateItem } from '~/lib/validate/validateItem';
-import Loader from '~/components/common/Loader';
+import FadeComponent from '~/components/ui/FadeComponent';
+import { DEFAULT_BOARD } from '~/utils/defaults';
 
 const Canvas = dynamic(() => import('~/components/canvas/Canvas'), {
     ssr: false,
 });
 
 export default function Home() {
-    const stageRef = useRef<Konva.Stage>(null);
     const dispatch = useAppDispatch();
-    const [isPopulated, setIsPopulated] = useState(false);
+    const [boardLoaded, setBoardLoaded] = useState(false);
+    const [itemsLoaded, setItemsLoaded] = useState(false);
+    const isPopulated = boardLoaded && itemsLoaded;
 
     useEffect(() => {
         const storedBoard = localStorage.getItem('board');
         if (storedBoard) {
             const parsedBoard = JSON.parse(storedBoard) as Board;
             dispatch(updateBoard(parsedBoard));
+            setBoardLoaded(true);
         } else {
             const board = {
+                ...structuredClone(DEFAULT_BOARD),
                 id: createCUID(),
-                name: 'New Board',
-                enableGrid: true,
-                snapToGrid: false,
-                gridSpacing: 100,
-                subGridSpacing: 20,
-                snapIncrement: 5,
-                showItems: false,
-                theme: 'system',
-                gridLineColor: '#000000',
-                gridLineWidth: 1,
-                gridLineOpacity: 0.1,
-                gridSubLineColor: '#000000',
-                gridSubLineWidth: 1,
-                gridSubLineOpacity: 0.05,
-                backgroundColor: '#ffffff',
             } as Board;
             localStorage.setItem('board', JSON.stringify(board));
             localStorage.setItem('items', JSON.stringify([]));
             dispatch(setBoard({ board: board, items: [] }));
+            setBoardLoaded(true);
         }
 
         const storedItems = localStorage.getItem('items');
@@ -78,27 +67,35 @@ export default function Home() {
 
             localStorage.setItem('items', JSON.stringify(processedItems));
             dispatch(setItems(processedItems));
+            setItemsLoaded(true);
         } else {
             localStorage.setItem('items', JSON.stringify([]));
             dispatch(setItems([]));
+            setItemsLoaded(true);
         }
-
-        setIsPopulated(true);
     }, []);
+
+    if (!isPopulated) {
+        return <div className='loader-container'>
+            <div className='spinner-border' role='status'></div>
+        </div>
+    }
 
     return (
         <div id='board-page' style={{ overflow: 'hidden' }}>
             <StageProvider>
-                <div id='ui-wrapper'>
-                    <LocalBoardNavbar />
-                    <BoardFooter stageRef={stageRef} />
-                </div>
-                <OptionsBar />
-                {isPopulated ? <Canvas /> : <Loader />}
-                <NotificationAnchor />
-                <LibraryAnchor />
-                <CustomExportsAnchor />
-                <CustomTooltipsAnchor />
+                <FadeComponent isLoading={!isPopulated}>
+                    <div id='ui-wrapper'>
+                        <LocalBoardNavbar />
+                        <BoardFooter />
+                    </div>
+                    <OptionsBar />
+                    <Canvas />
+                    <NotificationAnchor />
+                    <LibraryAnchor />
+                    <CustomExportsAnchor />
+                    <CustomTooltipsAnchor />
+                </FadeComponent>
             </StageProvider>
         </div>
     );

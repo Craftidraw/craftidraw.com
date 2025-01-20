@@ -46,7 +46,6 @@ const ItemLayer: React.FC<ItemLayerProps> = ({ previewItem }) => {
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
-    
     const items = useAppSelector(selectAllItems);
 
     const [anchors, setAnchors] = useState<{ x: number; y: number }[]>([]);

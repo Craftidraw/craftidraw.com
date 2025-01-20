@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import type { RootState } from '~/lib/store/store';
 import type { CustomItem, Item } from '~/types/item';
 import { Button, Form, InputGroup } from 'react-bootstrap';
@@ -38,6 +38,10 @@ const OptionsBar = () => {
     const [alteredEntityText, setAlteredEntityText] = useState<string>(
         currentItem?.type === 'custom' ? (currentItem as CustomItem).entity : '',
     );
+    
+    useEffect(() => {
+        setAlteredEntityText(currentItem?.type === 'custom' ? (currentItem as CustomItem).entity : '');
+    }, [currentItem]);
 
     const debounceEntityChange = useCallback(
         debounce((item: Item, text: string) => {
