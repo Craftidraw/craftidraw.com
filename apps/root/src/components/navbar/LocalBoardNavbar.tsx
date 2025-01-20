@@ -5,20 +5,22 @@ import type { RootState } from '~/lib/store/store';
 import React, { useCallback, useState } from 'react';
 import { debounce } from 'lodash';
 import type { Board } from '~/types/board';
-import { updateBoard } from '~/lib/store/features/appSlice';
+import { setIsSaved, updateBoard } from '~/lib/store/features/appSlice';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
-import { useRouter } from 'next/navigation';
 import { useShortcut } from '~/hooks/useShortcut';
 import NavbarBoardDropdown from '~/components/dropdown/NavbarBoardDropdown';
 import NavbarEditDropdown from '~/components/dropdown/NavbarEditDropdown';
 import NavbarHelpDropdown from '~/components/dropdown/NavbarHelpDropdown';
 import NavbarPreferencesDropdown from '~/components/dropdown/NavbarPreferencesDropdown';
 import BoardToolbar from '~/components/ui/BoardToolbar';
+import { useFileOperations } from '~/hooks/useFileOperations';
+import { useStorage } from '~/providers/StorageProvider';
 
 const LocalBoardNavbar = () => {
     const dispatch = useAppDispatch();
-    const { useKeyPress, exportBoard, importBoard, saveItemToLibrary, exportItem } = useShortcut();
-    const router = useRouter();
+    const { useKeyPress } = useShortcut();
+    const { exportBoard, importBoard, saveItemToLibrary, exportItem } = useFileOperations();
+    const { requestBoardSave } = useStorage();
 
     const board: Board | null = useAppSelector((state: RootState) => state.app.board);
     const isSaved = useAppSelector((state: RootState) => state.app.isSaved);
@@ -27,10 +29,18 @@ const LocalBoardNavbar = () => {
 
     const debounceTyping = useCallback(
         debounce((text: string) => {
+            dispatch(setIsSaved('pending'));
             dispatch(updateBoard({ ...board, name: text }));
-            localStorage.setItem('board', JSON.stringify({ ...board, name: text }));
+            requestBoardSave({ ...board, name: text }, (success) => {
+                if (!success) {
+                    console.error('Failed to save board');
+                    dispatch(setIsSaved('failure'));
+                } else {
+                    dispatch(setIsSaved('saved'));
+                }
+            });
         }, 500),
-        [],
+        [board, dispatch, requestBoardSave],
     );
 
     const handleBoardNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -2,6 +2,7 @@ import { Dropdown, DropdownButton } from 'react-bootstrap';
 import type { RootState } from '~/lib/store/store';
 import React from 'react';
 import {
+    selectItemById,
     setBoard,
     setHistory,
     setHistoryIndex,
@@ -10,11 +11,12 @@ import {
     setIsLibraryOpen,
 } from '~/lib/store/features/appSlice';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
-import { useShortcut } from '~/hooks/useShortcut';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import createCUID from '~/lib/cuid/createCUID';
 import type { Board } from '~/types/board';
 import type { HistoryAction } from '~/types/history';
+import { useFileOperations } from '~/hooks/useFileOperations';
+import { DEFAULT_BOARD } from '~/utils/defaults';
 
 interface NavbarBoardDropdownProps {
     isLocal: boolean;
@@ -24,9 +26,10 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
     const dispatch = useAppDispatch();
     const { requestConfirmation } = useConfirmation();
     const { exportBoard, importBoard, saveItemToLibrary, importImage, exportItem, importItem, customExportItem } =
-        useShortcut();
+        useFileOperations();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
 
     const handleWipe = async () => {
         const confirm = await requestConfirmation(
@@ -35,22 +38,8 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
         if (!confirm) return;
 
         const board: Board = {
+            ...structuredClone(DEFAULT_BOARD),
             id: createCUID(),
-            name: 'New Board',
-            enableGrid: true,
-            snapToGrid: false,
-            gridSpacing: 100,
-            subGridSpacing: 20,
-            snapIncrement: 5,
-            showItems: false,
-            theme: 'system',
-            gridLineColor: '#000000',
-            gridLineWidth: 1,
-            gridLineOpacity: 0.1,
-            gridSubLineColor: '#000000',
-            gridSubLineWidth: 1,
-            gridSubLineOpacity: 0.05,
-            backgroundColor: '#ffffff',
         };
 
         localStorage.setItem('board', JSON.stringify(board));
@@ -135,7 +124,7 @@ const NavbarBoardDropdown = ({ isLocal }: NavbarBoardDropdownProps) => {
             <Dropdown.Item
                 onClick={async (e) => {
                     e.preventDefault();
-                    if (selectedItem) await customExportItem(selectedItem);
+                    if (currentItem) await customExportItem(currentItem);
                 }}
             >
                 <i className='fa-solid fa-file-export'></i>

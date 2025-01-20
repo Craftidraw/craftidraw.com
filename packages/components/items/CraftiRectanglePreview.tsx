@@ -15,7 +15,6 @@ const CraftiRectanglePreview: React.FC<CraftiRectangleProps> = ({ item }) => {
             height={item.size.height}
             stroke={item.strokeColor ? item.strokeColor : 'black'}
             itemType={item.type}
-            draggable
         />
     );
 };

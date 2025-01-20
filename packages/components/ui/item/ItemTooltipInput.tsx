@@ -1,5 +1,5 @@
 import { Button, Form } from 'react-bootstrap';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useItem } from '~/hooks/useItem';
 import { debounce } from 'lodash';
 import type { CustomItem, TooltipLine } from '~/types/item';
@@ -20,6 +20,10 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
     const [showPopover, setShowPopover] = useState(false);
     const [buttonRef, setButtonRef] = useState<HTMLButtonElement | null>(null);
 
+    useEffect(() => {
+        setAlteredText(type === 'display' ? (item.displayName?.text ?? '') : (item.lore?.[index]?.text ?? ''));
+    }, [item, index, type]);
+
     const debounceDisplayNameChange = useCallback(
         debounce((item: CustomItem, text: string) => {
             const newDisplayName = {
@@ -34,8 +38,8 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
 
     const debounceLoreChange = useCallback(
         debounce((item: CustomItem, index: number, text: string) => {
-            const newLore = [...(item.lore || [])];
-            newLore[index] = { ...newLore[index], text: text };
+            const newLore = [...(item.lore ?? [])];
+            newLore[index] = { ...newLore[index], text: text } as TooltipLine;
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
         }, 500),
@@ -79,7 +83,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
             updateItem(newItem);
         } else if (type === 'lore') {
             const newLore = [...(item.lore ?? [])];
-            newLore[index] = { ...newLore[index], textAlign: textAlign };
+            newLore[index] = { ...newLore[index], textAlign: textAlign } as TooltipLine;
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
         }
@@ -87,13 +91,13 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
 
     const handleFontSize = (item: CustomItem, index: number, fontSize: number, type: 'display' | 'lore') => {
         if (type === 'display') {
-            const newDisplayName = { ...(item.displayName || {}) };
+            const newDisplayName = { ...(item.displayName ?? {}) };
             newDisplayName.fontSize = fontSize;
             const newItem = { ...item, displayName: newDisplayName };
             updateItem(newItem);
         } else if (type === 'lore') {
             const newLore = [...(item.lore ?? [])];
-            newLore[index] = { ...newLore[index], fontSize: fontSize };
+            newLore[index] = { ...newLore[index], fontSize: fontSize } as TooltipLine;
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
         }
@@ -106,8 +110,8 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
             const newItem = { ...item, displayName: newDisplayName };
             updateItem(newItem);
         } else if (type === 'lore') {
-            const newLore = [...(item.lore || [])];
-            newLore[index] = { ...newLore[index], fontFamily: fontFamily };
+            const newLore = [...(item.lore ?? [])];
+            newLore[index] = { ...newLore[index], fontFamily: fontFamily } as TooltipLine;
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
         }
@@ -126,7 +130,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
             updateItem(newItem);
         } else if (type === 'lore') {
             const newLore = [...(item.lore ?? [])];
-            newLore[index] = { ...newLore[index], fontDecoration: fontDecoration };
+            newLore[index] = { ...newLore[index], fontDecoration: fontDecoration } as TooltipLine;
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
         }
@@ -167,7 +171,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
             updateItem(newItem, item);
         } else if (type === 'lore') {
             const newLore = [...(item.lore ?? [])];
-            newLore[index] = { ...newLore[index], fontEffect: effects.join(' ') };
+            newLore[index] = { ...newLore[index], fontEffect: effects.join(' ') } as TooltipLine;
             const newItem = { ...item, lore: newLore };
             updateItem(newItem, item);
         }
@@ -200,7 +204,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.textAlign === 'left'
-                                        : item.lore && item.lore[index].textAlign === 'left'
+                                        : item.lore?.[index]?.textAlign === 'left'
                                 }
                                 onClick={() => {
                                     handleTextAlign(item, index, 'left', type);
@@ -213,7 +217,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.textAlign === 'center'
-                                        : item.lore && item.lore[index].textAlign === 'center'
+                                        : item.lore?.[index]?.textAlign === 'center'
                                 }
                                 onClick={() => {
                                     handleTextAlign(item, index, 'center', type);
@@ -226,7 +230,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.textAlign === 'right'
-                                        : item.lore && item.lore[index].textAlign === 'right'
+                                        : item.lore?.[index]?.textAlign === 'right'
                                 }
                                 onClick={() => {
                                     handleTextAlign(item, index, 'right', type);
@@ -244,7 +248,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontSize === 12
-                                        : item.lore && item.lore[index].fontSize === 12
+                                        : item.lore?.[index]?.fontSize === 12
                                 }
                                 onClick={() => {
                                     handleFontSize(item, index, 12, type);
@@ -257,7 +261,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontSize === 14
-                                        : item.lore && item.lore[index].fontSize === 14
+                                        : item.lore?.[index]?.fontSize === 14
                                 }
                                 onClick={() => {
                                     handleFontSize(item, index, 14, type);
@@ -270,7 +274,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontSize === 16
-                                        : item.lore && item.lore[index].fontSize === 16
+                                        : item.lore?.[index]?.fontSize === 16
                                 }
                                 onClick={() => {
                                     handleFontSize(item, index, 16, type);
@@ -283,7 +287,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontSize === 18
-                                        : item.lore && item.lore[index].fontSize === 18
+                                        : item.lore?.[index]?.fontSize === 18
                                 }
                                 onClick={() => {
                                     handleFontSize(item, index, 18, type);
@@ -301,7 +305,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontFamily === 'Minecraft'
-                                        : item.lore && item.lore[index].fontFamily === 'Minecraft'
+                                        : item.lore?.[index]?.fontFamily === 'Minecraft'
                                 }
                                 onClick={() => {
                                     handleFontFamily(item, index, 'Minecraft', type);
@@ -314,7 +318,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontFamily === 'Arial'
-                                        : item.lore && item.lore[index].fontFamily === 'Arial'
+                                        : item.lore?.[index]?.fontFamily === 'Arial'
                                 }
                                 onClick={() => {
                                     handleFontFamily(item, index, 'Arial', type);
@@ -331,7 +335,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontDecoration === 'line-through'
-                                        : item.lore && item.lore[index].fontDecoration === 'line-through'
+                                        : item.lore?.[index]?.fontDecoration === 'line-through'
                                 }
                                 variant='options'
                                 onClick={() => {
@@ -344,7 +348,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontDecoration === 'underline'
-                                        : item.lore && item.lore[index].fontDecoration === 'underline'
+                                        : item.lore?.[index]?.fontDecoration === 'underline'
                                 }
                                 variant='options'
                                 onClick={() => {
@@ -357,7 +361,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontDecoration === 'none'
-                                        : item.lore && item.lore[index].fontDecoration === 'none'
+                                        : item.lore?.[index]?.fontDecoration === 'none'
                                 }
                                 variant='options'
                                 onClick={() => {
@@ -376,7 +380,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontEffect?.includes('bold')
-                                        : item.lore?.[index].fontEffect?.includes('bold')
+                                        : item.lore?.[index]?.fontEffect?.includes('bold')
                                 }
                                 onClick={() => {
                                     handleFontEffect(item, index, 'bold', type);
@@ -389,7 +393,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontEffect?.includes('italic')
-                                        : item.lore?.[index].fontEffect?.includes('italic')
+                                        : item.lore?.[index]?.fontEffect?.includes('italic')
                                 }
                                 onClick={() => {
                                     handleFontEffect(item, index, 'italic', type);
@@ -402,7 +406,7 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
                                 active={
                                     type === 'display'
                                         ? item.displayName?.fontEffect?.includes('normal')
-                                        : item.lore?.[index].fontEffect?.includes('normal')
+                                        : item.lore?.[index]?.fontEffect?.includes('normal')
                                 }
                                 onClick={() => {
                                     handleFontEffect(item, index, 'normal', type);
@@ -416,9 +420,6 @@ const ItemTooltipInput: React.FC<ItemTooltipInputProps> = ({ item, index, type }
             </PopoverPortal>
             {type === 'lore' && (
                 <>
-                    <Button variant='secondary' onClick={() => {}}>
-                        <i className='fa-solid fa-up-down-left-right'></i>
-                    </Button>
                     <Button variant='secondary' onClick={() => handleLoreRemove(item, index)}>
                         <i className='fa-solid fa-trash'></i>
                     </Button>

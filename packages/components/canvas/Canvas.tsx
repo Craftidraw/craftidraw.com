@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { Stage } from 'react-konva';
-import { addItem, addToHistory, selectAllItems, setSelectedItem, setSelectedTool } from '~/lib/store/features/appSlice';
+import {
+    addItem,
+    addToHistory,
+    selectAllItems,
+    selectItemById,
+    setSelectedItem,
+    setSelectedTool,
+} from '~/lib/store/features/appSlice';
 import type Konva from 'konva';
 import GridLayer from './GridLayer';
 import ItemLayer from './ItemLayer';
@@ -23,17 +30,32 @@ import { useZoom } from '~/hooks/useZoom';
 import { useShortcut } from '~/hooks/useShortcut';
 import { useStage } from '~/providers/StageProvider';
 import { useItem } from '~/hooks/useItem';
+import { useItemOperations } from '~/hooks/useItemOperations';
+import {
+    DEFAULT_ARROW,
+    DEFAULT_CIRCLE,
+    DEFAULT_CUSTOM,
+    DEFAULT_DIAMOND,
+    DEFAULT_DRAW,
+    DEFAULT_IMAGE,
+    DEFAULT_LINE,
+    DEFAULT_RECTANGLE,
+    DEFAULT_TEXT,
+} from '~/utils/defaults';
+import { useTheme } from '~/providers/ThemeProvider';
 
 const Canvas = () => {
     const dispatch = useAppDispatch();
-    const { useKeyPress, useKeyRelease, cut, paste, redo, copy, remove, undo, quickMoveUp, quickMoveDown } =
-        useShortcut();
-    const { stageRef, transformerRef } = useStage();
+    const { useKeyPress, useKeyRelease, quickMoveUp, quickMoveDown } = useShortcut();
+    const { copy, cut, paste, remove, undo, redo } = useItemOperations();
+    const { stageRef, transformerRef, tooltipTransformerRef } = useStage();
     const { handleItemSave } = useItem();
+    const { isDark } = useTheme();
 
     const items = useAppSelector(selectAllItems);
     const selectedTool = useAppSelector((state: RootState) => state.app.selectedTool);
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
     const board = useAppSelector((state: RootState) => state.app.board);
     const isCustomExportsOpen = useAppSelector((state: RootState) => state.app.isCustomExportsOpen);
 
@@ -41,9 +63,9 @@ const Canvas = () => {
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
 
     useEffect(() => {
-        if (selectedItem && transformerRef.current && stageRef.current) {
+        if (currentItem && transformerRef.current && stageRef.current) {
             setTimeout(() => {
-                const selectedNode = stageRef.current?.findOne('#' + selectedItem.id);
+                const selectedNode = stageRef.current?.findOne('#' + currentItem.id);
                 if (selectedNode) {
                     transformerRef.current?.nodes([selectedNode]);
                 } else {
@@ -53,7 +75,24 @@ const Canvas = () => {
         } else {
             transformerRef.current?.nodes([]);
         }
-    }, [selectedItem, stageRef, transformerRef, selectedItem?.version]);
+
+        if (
+            currentItem &&
+            tooltipTransformerRef.current &&
+            stageRef.current &&
+            currentItem.type === 'custom' &&
+            (currentItem as CustomItem).tooltip.config
+        ) {
+            setTimeout(() => {
+                const selectedNode = stageRef.current?.findOne('#tooltip-' + currentItem.id);
+                if (selectedNode) {
+                    tooltipTransformerRef.current?.nodes([selectedNode]);
+                } else {
+                    tooltipTransformerRef.current?.nodes([]);
+                }
+            }, 10);
+        }
+    }, [currentItem, stageRef, transformerRef, tooltipTransformerRef, currentItem?.version]);
 
     useKeyPress(' ', () => {
         if (isCustomExportsOpen) return;
@@ -126,196 +165,80 @@ const Canvas = () => {
             if (selectedTool === 'rectangle') {
                 setIsDrawing(true);
                 const newItem: RectangleItem = {
-                    isFillable: true,
-                    isStrokeable: true,
+                    ...structuredClone(DEFAULT_RECTANGLE),
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
-                    size: { width: 0, height: 0 },
-                    borderRadius: 0,
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeWidth: 1,
-                    strokeStyle: 'solid',
-                    version: 1,
-                    attachments: [],
-                    fillColor: '#ffffff',
-                    fillOpacity: 1,
-                    isStrokeEnabled: true,
-                    isFillEnabled: false,
-                    type: 'rectangle',
+                    strokeColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'diamond') {
                 setIsDrawing(true);
                 const newItem: RectangleItem = {
-                    isFillable: true,
-                    isStrokeable: true,
+                    ...structuredClone(DEFAULT_DIAMOND),
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
-                    size: { width: 0, height: 0 },
-                    borderRadius: 0,
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeWidth: 1,
-                    strokeStyle: 'solid',
-                    version: 1,
-                    attachments: [],
-                    fillColor: '#ffffff',
-                    fillOpacity: 1,
-                    isStrokeEnabled: true,
-                    isFillEnabled: false,
-                    type: 'diamond',
+                    strokeColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'circle') {
                 setIsDrawing(true);
                 const newItem: CircleItem = {
-                    isFillable: true,
-                    isStrokeable: true,
+                    ...structuredClone(DEFAULT_CIRCLE),
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
-                    size: { width: 0, height: 0 },
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeWidth: 1,
-                    strokeStyle: 'solid',
-                    version: 1,
-                    attachments: [],
-                    fillColor: '#ffffff',
-                    fillOpacity: 1,
-                    isStrokeEnabled: true,
-                    isFillEnabled: false,
-                    type: 'circle',
+                    strokeColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'text') {
                 setIsDrawing(true);
                 const newItem: TextItem = {
-                    isFillable: true,
-                    isStrokeable: true,
+                    ...structuredClone(DEFAULT_TEXT),
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
-                    size: { width: 0, height: 0 },
-                    text: 'New Text',
-                    type: 'text',
-                    version: 1,
-                    attachments: [],
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeWidth: 1,
-                    strokeStyle: 'solid',
-                    fillColor: '#000000',
-                    fillOpacity: 1,
-                    isStrokeEnabled: false,
-                    isFillEnabled: true,
-                    textAlign: 'center',
-                    fontSize: 16,
-                    fontFamily: 'Arial',
-                    fontEffect: 'normal',
-                    fontDecoration: 'none',
+                    fillColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'line') {
                 setIsDrawing(true);
                 const newItem: LineItem = {
-                    isFillable: true,
-                    isStrokeable: true,
+                    ...structuredClone(DEFAULT_LINE),
                     points: [pos.x, pos.y, pos.x, pos.y],
-                    isArrow: false,
-                    hasArrowTail: false,
-                    hasArrowHead: false,
                     id: createCUID(),
-                    type: 'line',
-                    position: { x: 0, y: 0 },
-                    version: 1,
-                    attachments: [],
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeStyle: 'solid',
-                    strokeWidth: 1,
-                    isStrokeEnabled: true,
-                    fillColor: '#000000',
-                    fillOpacity: 1,
-                    isFillEnabled: true,
+                    strokeColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'arrow') {
                 setIsDrawing(true);
                 const newItem: LineItem = {
-                    isFillable: true,
-                    isStrokeable: true,
-                    isArrow: true,
+                    ...structuredClone(DEFAULT_ARROW),
                     points: [pos.x, pos.y, pos.x, pos.y],
-                    hasArrowTail: false,
-                    hasArrowHead: true,
                     id: createCUID(),
-                    type: 'arrow',
-                    position: { x: 0, y: 0 },
-                    version: 1,
-                    attachments: [],
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeStyle: 'solid',
-                    strokeWidth: 1,
-                    isStrokeEnabled: true,
-                    fillColor: '#000000',
-                    fillOpacity: 1,
-                    isFillEnabled: true,
+                    strokeColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'image') {
                 setIsDrawing(true);
                 const newItem: ImageItem = {
+                    ...structuredClone(DEFAULT_IMAGE),
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
-                    size: { width: 0, height: 0 },
-                    type: 'image',
-                    version: 1,
-                    attachments: [],
-                    isStrokeable: false,
-                    isFillable: false,
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'draw') {
                 setIsDrawing(true);
                 const newItem: DrawItem = {
+                    ...structuredClone(DEFAULT_DRAW),
                     points: [pos.x, pos.y, pos.x, pos.y],
                     id: createCUID(),
-                    type: 'draw',
-                    position: { x: 0, y: 0 },
-                    size: { width: 0, height: 0 },
-                    version: 1,
-                    attachments: [],
-                    strokeColor: '#000000',
-                    strokeOpacity: 1,
-                    strokeStyle: 'solid',
-                    strokeWidth: 1,
-                    isStrokeEnabled: true,
-                    fillColor: '#000000',
-                    fillOpacity: 1,
-                    isFillEnabled: true,
-                    isStrokeable: true,
-                    isFillable: true,
+                    strokeColor: isDark ? '#ffffff' : '#000000',
                 };
                 setPreviewItem(newItem);
             } else if (selectedTool === 'custom') {
                 setIsDrawing(true);
                 const newItem: CustomItem = {
+                    ...structuredClone(DEFAULT_CUSTOM),
                     id: createCUID(),
                     position: { x: pos.x, y: pos.y },
-                    size: { width: 0, height: 0 },
-                    type: 'custom',
-                    version: 1,
-                    attachments: [],
-                    entity: 'New-Entity',
-                    displayName: {
-                        text: 'New-Entity',
-                        fontSize: 14,
-                    },
-                    lore: [],
-                    showTooltip: false,
-                    isStrokeable: false,
-                    isFillable: false,
                 };
                 setPreviewItem(newItem);
             }
@@ -335,8 +258,8 @@ const Canvas = () => {
                     setPreviewItem({
                         ...previewItem,
                         size: {
-                            width: x - previewItem.position.x,
-                            height: y - previewItem.position.y,
+                            width: Math.max(5, x - previewItem.position.x),
+                            height: Math.max(5, y - previewItem.position.y),
                         },
                     } as RectangleItem | CircleItem | TextItem);
                     break;
@@ -345,8 +268,8 @@ const Canvas = () => {
                     setPreviewItem({
                         ...previewItem,
                         size: {
-                            width: x - previewItem.position.x,
-                            height: y - previewItem.position.y,
+                            width: Math.max(5, x - previewItem.position.x),
+                            height: Math.max(5, y - previewItem.position.y),
                         },
                     } as ImageItem);
                     break;
@@ -373,7 +296,7 @@ const Canvas = () => {
         if (isDrawing && previewItem) {
             setIsDrawing(false);
             dispatch(addItem(previewItem));
-            dispatch(setSelectedItem(previewItem));
+            dispatch(setSelectedItem(previewItem.id));
             dispatch(setSelectedTool('pointer'));
             dispatch(
                 addToHistory({
@@ -390,7 +313,7 @@ const Canvas = () => {
 
     return (
         <Stage
-            style={{ paddingTop: '90px' }}
+            style={{ paddingTop: '90px', backgroundColor: board.backgroundColor ?? 'var(--background-base)' }}
             ref={stageRef}
             x={stageRef.current?.x() ?? 0}
             y={stageRef.current?.y() ?? 0}

@@ -4,7 +4,8 @@ import React from 'react';
 import StoreProvider from '~/lib/store/StoreProvider';
 import { ConfirmationProvider } from '~/providers/ConfirmationProvider';
 import { StorageProvider } from '~/providers/StorageProvider';
-import { useLocalSave } from '~/hooks/useLocalSave';
+import { useLocalSave } from '~/hooks/useLocalSave'; 
+import { ThemeProvider } from '~/providers/ThemeProvider';
 
 interface AppProvidersProps {
     children: React.ReactNode;
@@ -22,7 +23,9 @@ const AppProviders = ({ children }: AppProvidersProps) => {
                         type: 'local',
                     }}
                 >
-                    {children}
+                    <ThemeProvider>
+                        {children}
+                    </ThemeProvider>
                 </StorageProvider>
             </ConfirmationProvider>
         </StoreProvider>

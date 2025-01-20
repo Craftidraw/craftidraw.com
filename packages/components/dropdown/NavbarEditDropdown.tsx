@@ -1,9 +1,9 @@
 import { Dropdown, DropdownButton } from 'react-bootstrap';
 import React from 'react';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useItemOperations } from '~/hooks/useItemOperations';
 
 const NavbarEditDropdown: React.FC = () => {
-    const { undo, redo, cut, copy, paste } = useShortcut();
+    const { undo, redo, cut, copy, paste } = useItemOperations();
 
     return (
         <DropdownButton variant='empty' title='Edit'>

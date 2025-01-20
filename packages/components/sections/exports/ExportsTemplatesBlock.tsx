@@ -112,7 +112,7 @@ const ExportsTemplatesBlock: React.FC<ExportsTemplatesBlockProps> = ({
     }, []);
 
     useEffect(() => {
-        fetchConfigurations();
+        void fetchConfigurations();
     }, [fetchConfigurations]);
 
     useEffect(() => {

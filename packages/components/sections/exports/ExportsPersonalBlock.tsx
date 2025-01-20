@@ -4,7 +4,7 @@ import type { LibraryExportConfiguration } from '~/types/library';
 import { useAppDispatch } from '~/lib/store/hooks';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useFileOperations } from '~/hooks/useFileOperations';
 import { setSelectedConfiguration } from '~/lib/store/features/appSlice';
 import ExportConfiguration from '~/components/ui/preview/ExportConfiguration';
 
@@ -21,7 +21,7 @@ const ExportsPersonalBlock: React.FC<ExportsPersonalBlockProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const { getExportConfigurations, deleteExportConfiguration } = useIndexedDB();
-    const { importExportConfiguration, exportExportConfiguration } = useShortcut();
+    const { importExportConfiguration, exportExportConfiguration } = useFileOperations();
     const { requestConfirmation } = useConfirmation();
 
     const [libraryConfigurations, setLibraryConfigurations] = useState<LibraryExportConfiguration[]>([]);

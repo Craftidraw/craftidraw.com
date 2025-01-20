@@ -8,12 +8,13 @@ import createCUID from '~/lib/cuid/createCUID';
 import { addItem, addNotification, setIsLibraryOpen, setSelectedItem } from '~/lib/store/features/appSlice';
 import { useAppDispatch } from '~/lib/store/hooks';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useFileOperations } from '~/hooks/useFileOperations';
+import { validateItem } from '~/lib/validate/validateItem';
 
 const LibraryItemBlock: React.FC = () => {
     const dispatch = useAppDispatch();
     const { getItems, deleteItem } = useIndexedDB();
-    const { importItem, exportItem } = useShortcut();
+    const { importItem, exportItem } = useFileOperations();
     const { requestConfirmation } = useConfirmation();
 
     const [loadedItems, setLoadedItems] = useState<LibraryItem[]>([]);
@@ -23,7 +24,7 @@ const LibraryItemBlock: React.FC = () => {
     useEffect(() => {
         const loadItems = async () => {
             const items = await getItems();
-            setLoadedItems(items);
+            setLoadedItems(items.filter((item) => validateItem(JSON.stringify(item)).status));
         };
 
         void loadItems();
@@ -60,7 +61,7 @@ const LibraryItemBlock: React.FC = () => {
         } as Item;
 
         dispatch(addItem(item));
-        dispatch(setSelectedItem(item));
+        dispatch(setSelectedItem(item.id));
         dispatch(
             addNotification({
                 id: createCUID(),

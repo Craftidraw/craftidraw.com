@@ -28,13 +28,19 @@ const TooltipLineSchema = z.object({
     fontDecoration: z.enum(['none', 'underline', 'line-through']).optional()
 });
 
-const TooltipSchema = z.object({
+const TooltipSettingsSchema = z.object({
     strokeColor: z.string().optional(),
     strokeStyle: z.string().optional(),
     strokeWidth: z.number().optional(),
     isStrokeEnabled: z.boolean().optional(),
     fillColor: z.string().optional(),
     isFillEnabled: z.boolean().optional()
+});
+
+const LibraryTooltipConfigurationSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    settings: TooltipSettingsSchema
 });
 
 const StrokePropertiesSchema = z.object({
@@ -129,16 +135,16 @@ const DrawSchema = BaseItemSchema.extend({
 const CustomSchema = BaseItemSchema.extend({
     type: z.literal('custom'),
     size: SizeSchema,
-    image: LibraryImageSchema.optional(),
     entity: z.string(),
+    image: LibraryImageSchema.optional(),
+    showTooltip: z.boolean().optional(),
     displayName: TooltipLineSchema.optional(),
     lore: z.array(TooltipLineSchema).optional(),
-    tooltipSettings: z.object({
-        id: z.number(),
-        name: z.string(),
-        tooltip: TooltipSchema
-    }).optional(),
-    showTooltip: z.boolean().optional()
+    tooltip: z.object({
+        position: PositionSchema,
+        size: SizeSchema,
+        config: LibraryTooltipConfigurationSchema.optional()
+    }),
 });
 
 const ItemSchema = z.discriminatedUnion('type', [
@@ -152,6 +158,7 @@ const ItemSchema = z.discriminatedUnion('type', [
     DrawSchema,
     CustomSchema
 ]);
+
 interface ValidationResult {
     status: boolean;
     item: Item | null;
@@ -268,7 +275,11 @@ export const fixItem = (itemStr: string): Item | false => {
                     textAlign: 'left' as const
                 },
                 lore: [],
-                tooltipSettings: undefined
+                tooltip: {
+                    position: { x: 20, y: 0 },
+                    size: { width: 200, height: 50 },
+                    config: undefined
+                }
             }
         };
 

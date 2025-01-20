@@ -10,17 +10,18 @@ import DOMPurify from 'dompurify';
 import type { RootState } from '~/lib/store/store';
 import createCUID from '~/lib/cuid/createCUID';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
-import { addNotification, setIsLibraryOpen } from '~/lib/store/features/appSlice';
-import { useShortcut } from '~/hooks/useShortcut';
+import { addNotification, selectItemById, setIsLibraryOpen } from '~/lib/store/features/appSlice';
+import { useFileOperations } from '~/hooks/useFileOperations';
 
 const LibraryImageBlock: React.FC = () => {
     const dispatch = useAppDispatch();
     const { updateItem } = useItem();
     const { getImages, deleteImage } = useIndexedDB();
-    const { importImage } = useShortcut();
+    const { importImage } = useFileOperations();
     const { requestConfirmation } = useConfirmation();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
 
     const [selectedLibraryImage, setSelectedLibraryImage] = useState<LibraryImage | null>(null);
     const [loadedImages, setLoadedImages] = useState<LibraryImage[]>([]);
@@ -56,17 +57,18 @@ const LibraryImageBlock: React.FC = () => {
 
     const handleImageSelect = useCallback(() => {
         if (!selectedLibraryImage || !selectedItem) return;
-        if (selectedItem.type !== 'image' && selectedItem.type !== 'custom') return;
+        if (currentItem?.type !== 'image' && currentItem?.type !== 'custom') return;
 
         const updatedItem = {
-            ...selectedItem,
+            ...currentItem,
             image: selectedLibraryImage,
         } as ImageItem | CustomItem;
 
-        updateItem(updatedItem, { ...selectedItem });
+        updateItem(updatedItem, { ...currentItem });
+        
         setSelectedLibraryImage(null);
         dispatch(setIsLibraryOpen(false));
-    }, [dispatch, selectedItem, selectedLibraryImage, updateItem]);
+    }, [dispatch, currentItem, selectedLibraryImage, updateItem, selectedItem]);
 
     const handleImageDelete = async () => {
         if (!selectedLibraryImage) return;
@@ -108,7 +110,7 @@ const LibraryImageBlock: React.FC = () => {
                         size='sm'
                         onClick={async () => {
                             await importImage().then(() => {
-                                getImages().then((images) => setLoadedImages(images));
+                                void getImages().then((images) => setLoadedImages(images));
                             });
                         }}
                     >
@@ -116,9 +118,9 @@ const LibraryImageBlock: React.FC = () => {
                     </Button>
                 </div>
                 <div className='d-flex flex-row ms-auto'>
-                    {selectedItem &&
+                    {currentItem &&
                         selectedLibraryImage &&
-                        (selectedItem.type === 'custom' || selectedItem.type === 'image') && (
+                        (currentItem.type === 'custom' || currentItem.type === 'image') && (
                             <Button className='me-1' variant='primary' size='sm' onClick={() => handleImageSelect()}>
                                 Select
                             </Button>

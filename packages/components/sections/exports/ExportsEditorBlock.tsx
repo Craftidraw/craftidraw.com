@@ -6,7 +6,7 @@ import { nord as theme } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Editor } from '@monaco-editor/react';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useFileOperations } from '~/hooks/useFileOperations';
 
 interface CustomExportsEditorProps {
     previewMode: boolean;
@@ -20,7 +20,7 @@ const ExportsEditorBlock: React.FC<CustomExportsEditorProps> = ({
     handleEditorClose,
 }) => {
     const { requestConfirmation } = useConfirmation();
-    const { saveExportConfigurationToLibrary } = useShortcut();
+    const { saveExportConfigurationToLibrary } = useFileOperations();
     const { updateExportConfiguration } = useIndexedDB();
 
     const [fileType, setFileType] = useState('');

@@ -1,16 +1,12 @@
 import type { Item } from '~/types/item';
 import { useEffect } from 'react';
-import type { BoardInfo } from '~/types/board';
+import type { Board } from '~/types/board';
 import { debounce } from 'lodash';
 
 export function useLocalSave() {
     const saveItems = (items: Item[]): boolean => {
         try {
-            const itemsToSave = items.map((item) => ({
-                ...item,
-                position: item.position || { x: 0, y: 0 },
-            }));
-            localStorage.setItem('items', JSON.stringify(itemsToSave));
+            localStorage.setItem('items', JSON.stringify(items));
             return true;
         } catch (error) {
             console.error('Failed to save items:', error);
@@ -18,9 +14,9 @@ export function useLocalSave() {
         }
     };
 
-    const saveBoard = (boardInfo: BoardInfo): boolean => {
+    const saveBoard = (board: Board): boolean => {
         try {
-            localStorage.setItem('board', JSON.stringify(boardInfo.board));
+            localStorage.setItem('board', JSON.stringify(board));
             return true;
         } catch {
             return false;
@@ -32,8 +28,8 @@ export function useLocalSave() {
         callback(success);
     }, 1000);
 
-    const debouncedBoardSave = debounce((boardInfo: BoardInfo, callback: (success: boolean) => void) => {
-        const success = saveBoard(boardInfo);
+    const debouncedBoardSave = debounce((board: Board, callback: (success: boolean) => void) => {
+        const success = saveBoard(board);
         callback(success);
     }, 1000);
 
@@ -46,22 +42,22 @@ export function useLocalSave() {
         debouncedItemSave(items, callback);
     };
 
-    const requestBoardSave = (boardInfo: BoardInfo, callback: (success: boolean) => void) => {
-        if (!boardInfo) {
-            console.error('Board info is required for saving');
+    const requestBoardSave = (board: Board, callback: (success: boolean) => void) => {
+        if (!board) {
+            console.error('Board is required for saving');
             callback(false);
             return;
         }
-        debouncedBoardSave(boardInfo, callback);
+        debouncedBoardSave(board, callback);
     };
 
-    const requestImmediateBoardSave = (boardInfo: BoardInfo, callback: (success: boolean) => void) => {
-        if (!boardInfo) {
-            console.error('Board info is required for immediate saving');
+    const requestImmediateBoardSave = (board: Board, callback: (success: boolean) => void) => {
+        if (!board) {
+            console.error('Board is required for immediate saving');
             callback(false);
             return;
         }
-        const success = saveBoard(boardInfo);
+        const success = saveBoard(board);
         callback(success);
     };
 

@@ -1,7 +1,7 @@
 import { Group, Image as KonvaImage, Rect } from 'react-konva';
 import React from 'react';
 import type { RootState } from '~/lib/store/store';
-import type { Item, ImageItem } from '~/types/item';
+import type { ImageItem } from '~/types/item';
 import { useItem } from '~/hooks/useItem';
 import useImage from 'use-image';
 import { setIsLibraryOpen } from '~/lib/store/features/appSlice';
@@ -13,7 +13,7 @@ interface CraftiImageProps {
 
 const CraftiImage: React.FC<CraftiImageProps> = ({ item }) => {
     const dispatch = useAppDispatch();
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } =
         useItem();
     const [image, status] = useImage(item.image?.data ?? '');
@@ -50,7 +50,7 @@ const CraftiImage: React.FC<CraftiImageProps> = ({ item }) => {
                     onDragStart={() => moveItemStart(item)}
                     onDragMove={(e) => moveItem(e, item)}
                     onDragEnd={() => moveItemEnd(item)}
-                    draggable={selectedItem?.id === item.id}
+                    draggable={selectedItem === item.id}
                 />
             ) : (
                 <Rect
@@ -73,7 +73,7 @@ const CraftiImage: React.FC<CraftiImageProps> = ({ item }) => {
                     onDragStart={() => moveItemStart(item)}
                     onDragMove={(e) => moveItem(e, item)}
                     onDragEnd={() => moveItemEnd(item)}
-                    draggable={selectedItem?.id === item.id}
+                    draggable={selectedItem === item.id}
                 />
             )}
         </Group>

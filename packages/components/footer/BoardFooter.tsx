@@ -1,24 +1,21 @@
 import React from 'react';
 import type { RootState } from '~/lib/store/store';
 import { Button, ButtonGroup, Card } from 'react-bootstrap';
-import type Konva from 'konva';
 import type { DrawItem, Item, LineItem } from '~/types/item';
 import type { Board } from '~/types/board';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 import { selectAllItems, setCanvasZoom, setSelectedItem, updateBoard } from '~/lib/store/features/appSlice';
+import { useStage } from '~/providers/StageProvider';
 
-interface UIFooterProps {
-    stageRef: React.RefObject<Konva.Stage>;
-}
-
-const BoardFooter: React.FC<UIFooterProps> = ({ stageRef }) => {
+const BoardFooter = () => {
     const dispatch = useAppDispatch();
+    const { stageRef } = useStage();
     const board: Board = useAppSelector((state: RootState) => state.app.board);
     const items: Item[] = useAppSelector(selectAllItems);
     const canvasZoom = useAppSelector((state: RootState) => state.app.canvasZoom);
 
     const handleSelect = (item: Item) => {
-        dispatch(setSelectedItem(item));
+        dispatch(setSelectedItem(item.id));
 
         if (stageRef.current) {
             const stage = stageRef.current;
@@ -126,7 +123,14 @@ const BoardFooter: React.FC<UIFooterProps> = ({ stageRef }) => {
                     >
                         <i className='fa-solid fa-plus'></i>
                     </Button>
-                    <Button id='btn-zoom' variant='primary' disabled={true}>
+                    <Button variant='primary' onClick={() => {
+                        if (stageRef.current) {
+                            const stage = stageRef.current;
+                            stage.scale({ x: 1, y: 1 });
+                            stage.batchDraw();
+                            dispatch(setCanvasZoom(1));
+                        }
+                    }}>
                         {' '}
                         {Math.round(canvasZoom * 100 * 10) / 10}%{' '}
                     </Button>

@@ -2,7 +2,7 @@ import React from 'react';
 import { type RootState } from '~/lib/store/store';
 import { Ellipse, Group } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
-import { type CircleItem, type Item } from '~/types/item';
+import { type CircleItem } from '~/types/item';
 import { useAppSelector } from '~/lib/store/hooks';
 
 interface CraftiCircleProps {
@@ -10,7 +10,7 @@ interface CraftiCircleProps {
 }
 
 const CraftiCircle: React.FC<CraftiCircleProps> = ({ item }) => {
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } =
         useItem();
 
@@ -53,7 +53,7 @@ const CraftiCircle: React.FC<CraftiCircleProps> = ({ item }) => {
                 onDragStart={() => moveItemStart(item)}
                 onDragMove={(e) => moveItem(e, item)}
                 onDragEnd={() => moveItemEnd(item)}
-                draggable={selectedItem?.id === item.id}
+                draggable={selectedItem === item.id}
             />
         </Group>
     );

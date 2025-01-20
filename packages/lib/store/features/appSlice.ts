@@ -6,6 +6,7 @@ import type { Notification } from '~/types/notification';
 import type { RootState } from '../store';
 import createCUID from '~/lib/cuid/createCUID';
 import type { Workspace } from '~/types/workspace';
+import { DEFAULT_BOARD } from '~/utils/defaults';
 
 const workspacesAdapter = createEntityAdapter({
     selectId: (workspace: Workspace) => workspace.id,
@@ -23,45 +24,33 @@ const notificationsAdapter = createEntityAdapter({
 interface AppState {
     workspace: Workspace | null;
     workspaces: EntityState<Workspace, string>;
+    items: EntityState<Item, string>;
+    notifications: EntityState<Notification, string>;
 
     board: Board;
-    items: EntityState<Item, string>;
     selectedTool: string;
-    selectedItem: Item | null;
+    selectedItem: string | null;
     selectedConfiguration: number | null;
     copiedItem: Item | null;
     previousTool: string | null;
+    canvasZoom: number;
+
     history: History;
+
     isAccountManagerOpen: boolean;
     isLibraryOpen: boolean;
     isCustomExportsOpen: boolean;
     isCustomTooltipsOpen: boolean;
-    canvasZoom: number;
-    notifications: EntityState<Notification, string>;
+
     isSaved: 'saved' | 'unsaved' | 'pending' | 'failure';
-    isUploaded: 'saved' | 'unsaved' | 'pending' | 'failure';
 }
 
 const initialState: AppState = {
     workspace: null,
     workspaces: workspacesAdapter.getInitialState(),
     board: {
+        ...structuredClone(DEFAULT_BOARD),
         id: createCUID(),
-        name: 'New Board',
-        enableGrid: true,
-        snapToGrid: false,
-        gridSpacing: 100,
-        subGridSpacing: 20,
-        snapIncrement: 5,
-        showItems: false,
-        theme: 'system',
-        gridLineColor: '#000000',
-        gridLineWidth: 1,
-        gridLineOpacity: 0.1,
-        gridSubLineColor: '#000000',
-        gridSubLineWidth: 1,
-        gridSubLineOpacity: 0.05,
-        backgroundColor: '#ffffff',
     },
     items: itemsAdapter.getInitialState(),
     selectedTool: 'pointer',
@@ -77,7 +66,6 @@ const initialState: AppState = {
     canvasZoom: 1,
     notifications: notificationsAdapter.getInitialState(),
     isSaved: 'saved',
-    isUploaded: 'saved',
 };
 
 export const appSlice = createSlice({
@@ -111,22 +99,8 @@ export const appSlice = createSlice({
         },
         unsetBoard: (state) => {
             state.board = {
+                ...structuredClone(DEFAULT_BOARD),
                 id: createCUID(),
-                name: 'New Board',
-                enableGrid: true,
-                snapToGrid: false,
-                gridSpacing: 100,
-                subGridSpacing: 20,
-                snapIncrement: 5,
-                showItems: false,
-                theme: 'system',
-                gridLineColor: '#000000',
-                gridLineWidth: 1,
-                gridLineOpacity: 0.1,
-                gridSubLineColor: '#000000',
-                gridSubLineWidth: 1,
-                gridSubLineOpacity: 0.05,
-                backgroundColor: '#ffffff',
             };
             state.items = itemsAdapter.getInitialState();
         },
@@ -182,7 +156,7 @@ export const appSlice = createSlice({
                 });
             }
         },
-        setSelectedItem: (state, action: PayloadAction<Item | null>) => {
+        setSelectedItem: (state, action: PayloadAction<string | null>) => {
             state.selectedItem = action.payload;
         },
         setSelectedTool: (state, action: PayloadAction<string>) => {
@@ -234,9 +208,6 @@ export const appSlice = createSlice({
         setIsSaved: (state, action: PayloadAction<'saved' | 'unsaved' | 'pending' | 'failure'>) => {
             state.isSaved = action.payload;
         },
-        setIsUploaded: (state, action: PayloadAction<'saved' | 'unsaved' | 'pending' | 'failure'>) => {
-            state.isUploaded = action.payload;
-        },
     },
 });
 
@@ -275,7 +246,6 @@ export const {
     addNotification,
     removeNotification,
     setIsSaved,
-    setIsUploaded,
 } = appSlice.actions;
 
 export const {

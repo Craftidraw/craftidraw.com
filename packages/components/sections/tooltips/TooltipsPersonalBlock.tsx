@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import TooltipPreview from '../../ui/preview/TooltipPreview';
 import { useIndexedDB } from '~/hooks/useIndexedDB';
-import type { CustomItem } from '~/types/item';
+import type { CustomItem, Tooltip } from '~/types/item';
 import { useAppDispatch, useAppSelector } from '~/lib/store/hooks';
 import type { RootState } from '~/lib/store/store';
-import { setIsCustomTooltipsOpen, setItem, setSelectedItem } from '~/lib/store/features/appSlice';
+import { selectItemById, setIsCustomTooltipsOpen } from '~/lib/store/features/appSlice';
 import { useConfirmation } from '~/providers/ConfirmationProvider';
-import { useShortcut } from '~/hooks/useShortcut';
+import { useFileOperations } from '~/hooks/useFileOperations';
+import { useItem } from '~/hooks/useItem';
 
 interface TooltipsPersonalBlockProps {
     selectedTooltip: LibraryTooltipConfiguration | null;
@@ -22,11 +23,13 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
     handleEditorOpen,
 }) => {
     const dispatch = useAppDispatch();
+    const { updateItem } = useItem();
     const { requestConfirmation } = useConfirmation();
     const { getTooltipConfigurations, deleteTooltipConfiguration } = useIndexedDB();
-    const { exportTooltipConfiguration, importTooltipConfiguration } = useShortcut();
+    const { exportTooltipConfiguration, importTooltipConfiguration } = useFileOperations();
 
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
+    const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
 
     const [libraryTooltips, setLibraryTooltips] = useState<LibraryTooltipConfiguration[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -36,7 +39,8 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
             const tooltips: LibraryTooltipConfiguration[] = await getTooltipConfigurations();
             setLibraryTooltips(tooltips);
         };
-        loadLibraryTooltips();
+
+        void loadLibraryTooltips();
     }, []);
 
     useEffect(() => {
@@ -52,20 +56,22 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
         return () => {
             document.removeEventListener('click', handleClickOutside);
         };
-    }, [selectedTooltip]);
+    }, [setSelectedTooltip, selectedTooltip]);
 
     const handleTooltipSelect = () => {
         if (!selectedTooltip) return;
         if (!selectedItem) return;
-        if (selectedItem.type !== 'custom') return;
+        if (currentItem?.type !== 'custom') return;
 
         const item = {
-            ...selectedItem,
-            tooltipSettings: selectedTooltip,
-        } as CustomItem;
+            ...currentItem,
+            tooltip: {
+                ...(currentItem as CustomItem).tooltip,
+                config: selectedTooltip,
+            } as Tooltip,
+        };
 
-        dispatch(setItem(item));
-        dispatch(setSelectedItem(item));
+        updateItem(item, currentItem);
 
         setSelectedTooltip(null);
         dispatch(setIsCustomTooltipsOpen(false));
@@ -75,7 +81,7 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
         const newConfiguration: LibraryTooltipConfiguration = {
             id: libraryTooltips.length + 1,
             name: 'New Tooltip ' + libraryTooltips.length,
-            tooltip: {
+            settings: {
                 strokeColor: '#363636',
                 strokeStyle: 'solid',
                 strokeWidth: 1,
@@ -122,7 +128,7 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
                 <div className='d-flex flex-row ms-auto'>
                     {selectedTooltip && (
                         <>
-                            {selectedItem && selectedItem.type === 'custom' && (
+                            {currentItem && currentItem.type === 'custom' && (
                                 <Button
                                     title='Select this configuration'
                                     className='me-1'
@@ -186,7 +192,7 @@ const TooltipsPersonalBlock: React.FC<TooltipsPersonalBlockProps> = ({
                             }
                         >
                             <div className='library-tooltip-image-container'>
-                                {tooltip?.tooltip && <TooltipPreview tooltip={tooltip.tooltip} />}
+                                {tooltip?.settings && <TooltipPreview settings={tooltip.settings} />}
                             </div>
                             <div
                                 className='d-flex flex-column library-tooltip-details tooltip-details'

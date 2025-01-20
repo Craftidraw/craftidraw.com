@@ -1,14 +1,14 @@
-import type { BoardInfo } from '~/types/board';
+import type { Board } from '~/types/board';
 import React, { createContext, useContext } from 'react';
 import type { Item } from '~/types/item';
 
 interface StorageProviderProps {
     type: 'local' | 'cloud';
     requestItemSave: (items: Item[], callback: (success: boolean) => void) => void;
-    requestBoardSave: (boardInfo: BoardInfo, callback: (success: boolean) => void) => void;
-    requestImmediateBoardSave: (boardInfo: BoardInfo, callback: (success: boolean) => void) => void;
+    requestBoardSave: (board: Board, callback: (success: boolean) => void) => void;
+    requestImmediateBoardSave: (board: Board, callback: (success: boolean) => void) => void;
     saveItems: (items: Item[]) => boolean;
-    saveBoard: (boardInfo: BoardInfo) => boolean;
+    saveBoard: (board: Board) => boolean;
     markForDeletion: (id: string) => void;
     unmarkForDeletion: (id: string) => void;
 }
@@ -31,10 +31,10 @@ export const StorageProvider = ({
     provider: {
         type: 'local' | 'cloud';
         requestItemSave: (items: Item[], callback: (success: boolean) => void) => void;
-        requestBoardSave: (boardInfo: BoardInfo, callback: (success: boolean) => void) => void;
-        requestImmediateBoardSave: (boardInfo: BoardInfo, callback: (success: boolean) => void) => void;
+        requestBoardSave: (board: Board, callback: (success: boolean) => void) => void;
+        requestImmediateBoardSave: (board: Board, callback: (success: boolean) => void) => void;
         saveItems: (items: Item[]) => boolean;
-        saveBoard: (boardInfo: BoardInfo) => boolean;
+        saveBoard: (board: Board) => boolean;
         markForDeletion: (id: string) => void;
         unmarkForDeletion: (id: string) => void;
     };

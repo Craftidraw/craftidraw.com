@@ -81,7 +81,6 @@ export const useItem = () => {
                     } as HistoryAction),
                 );
             }
-
             handleItemSave(newItems);
         },
         [dispatch, handleItemSave, items],
@@ -96,11 +95,7 @@ export const useItem = () => {
 
     const selectItem = (e: Konva.KonvaEventObject<MouseEvent>, item: Item) => {
         e.cancelBubble = true;
-        dispatch(
-            setSelectedItem({
-                ...item,
-            }),
-        );
+        dispatch(setSelectedItem(item.id));
     };
 
     const getSnappedPosition = useCallback(
@@ -283,7 +278,7 @@ export const useItem = () => {
             updateItems(updatedItems, preparedActionRef.current?.previousSnapshots);
             preparedActionRef.current = null;
         },
-        [getSnappedPosition, updateItems, items],
+        [getSnappedPosition, updateItems, items, itemLayerRef],
     );
 
     const moveAnchorStart = (item: LineItem) => {

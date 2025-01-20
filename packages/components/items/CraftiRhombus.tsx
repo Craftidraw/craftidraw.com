@@ -2,7 +2,7 @@ import React from 'react';
 import { type RootState } from '~/lib/store/store';
 import { Group, Line } from 'react-konva';
 import { useItem } from '~/hooks/useItem';
-import { type Item, type RectangleItem } from '~/types/item';
+import { type RectangleItem } from '~/types/item';
 import { useAppSelector } from '~/lib/store/hooks';
 
 interface CraftiRhombusProps {
@@ -10,7 +10,7 @@ interface CraftiRhombusProps {
 }
 
 const CraftiRhombus: React.FC<CraftiRhombusProps> = ({ item }) => {
-    const selectedItem: Item | null = useAppSelector((state: RootState) => state.app.selectedItem);
+    const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const { selectItem, moveItemStart, moveItem, moveItemEnd, transformItemStart, transformItem, transformItemEnd } =
         useItem();
 
@@ -72,7 +72,7 @@ const CraftiRhombus: React.FC<CraftiRhombusProps> = ({ item }) => {
                 onDragStart={() => moveItemStart(item)}
                 onDragMove={(e) => moveItem(e, item)}
                 onDragEnd={() => moveItemEnd(item)}
-                draggable={selectedItem?.id === item.id}
+                draggable={selectedItem === item.id}
             />
         </Group>
     );

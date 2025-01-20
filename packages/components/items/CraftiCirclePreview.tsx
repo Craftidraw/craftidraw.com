@@ -19,7 +19,6 @@ const CraftiCirclePreview: React.FC<CraftiCircleProps> = ({ item }) => {
             radiusY={item.size.height / 2}
             stroke={item.strokeColor ? item.strokeColor : 'black'}
             itemType={item.type}
-            draggable
         />
     );
 };
