@@ -1,6 +1,5 @@
-/.turbo/
-/node_modules/
-/packages/assets/
+.turbo/
+node_modules/
 
 .env
 
@@ -8,9 +7,9 @@
 /apps/app/
 
 # IDE
-/.idea/
-/.vscode/
-/.hintrc
+.idea/
+.vscode/
+.hintrc
 
-/packages/assets/fonts/
-
+packages/assets/fonts/
+packages/assets/images/

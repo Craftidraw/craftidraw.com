@@ -9,7 +9,7 @@ import type { Item } from '~/types/item';
 import LocalBoardNavbar from '~/components/navbar/LocalBoardNavbar';
 import BoardFooter from '~/components/footer/BoardFooter';
 import OptionsBar from '~/components/ui/OptionsBar';
-import NotificationAnchor from '~/components/ui/NotificationManagement';
+import NotificationContainer from '~/components/ui/NotificationContainer';
 import LibraryAnchor from '~/components/modal/anchors/LibraryAnchor';
 import CustomExportsAnchor from '~/components/modal/anchors/CustomExportsAnchor';
 import CustomTooltipsAnchor from '~/components/modal/anchors/CustomTooltipsAnchor';
@@ -18,16 +18,47 @@ import { StageProvider } from '~/providers/StageProvider';
 import { fixItem, validateItem } from '~/lib/validate/validateItem';
 import FadeComponent from '~/components/ui/FadeComponent';
 import { DEFAULT_BOARD } from '~/utils/defaults';
+import { usePostHog } from '~/hooks/usePostHog';
+import useConsent from '~/hooks/useConsent';
 
 const Canvas = dynamic(() => import('~/components/canvas/Canvas'), {
     ssr: false,
 });
 
 export default function Home() {
+    const posthog = usePostHog();
     const dispatch = useAppDispatch();
     const [boardLoaded, setBoardLoaded] = useState(false);
     const [itemsLoaded, setItemsLoaded] = useState(false);
     const isPopulated = boardLoaded && itemsLoaded;
+    const { cookieConsent, ask, isLoading: isCookieLoading } = useConsent();
+
+    useEffect(() => {
+        if (isCookieLoading) return;
+        if (!cookieConsent?.cookies) {
+            ask(
+                'cookies',
+                'Cookie Consent',
+                'Craftidraw uses cookies to improve your experience. By continuing to use this site, you agree to our use of cookies. [Learn more](https://docs.craftidraw.com/privacy)',
+                {
+                    text: 'I understand',
+                },
+            );
+        }
+        if (cookieConsent?.analytics === undefined) {
+            ask(
+                'analytics',
+                'Analytics Consent',
+                'Craftidraw uses anonymous analytics to improve our service. This is an opt-in feature. [Learn more](https://docs.craftidraw.com/privacy)',
+                {
+                    text: 'Opt In',
+                },
+                {
+                    text: 'No Thanks',
+                },
+            );
+        }
+    }, [isCookieLoading, cookieConsent, ask]);
 
     useEffect(() => {
         const storedBoard = localStorage.getItem('board');
@@ -76,9 +107,11 @@ export default function Home() {
     }, []);
 
     if (!isPopulated) {
-        return <div className='loader-container'>
-            <div className='spinner-border' role='status'></div>
-        </div>
+        return (
+            <div className='loader-container'>
+                <div className='spinner-border' role='status'></div>
+            </div>
+        );
     }
 
     return (
@@ -91,7 +124,7 @@ export default function Home() {
                     </div>
                     <OptionsBar />
                     <Canvas />
-                    <NotificationAnchor />
+                    <NotificationContainer />
                     <LibraryAnchor />
                     <CustomExportsAnchor />
                     <CustomTooltipsAnchor />

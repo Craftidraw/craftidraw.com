@@ -59,7 +59,6 @@ const config: Config = {
         // Replace with your project's social card
         image: 'img/docusaurus-social-card.jpg',
         navbar: {
-            title: 'Craftidraw',
             logo: {
                 alt: 'craftidraw-logo',
                 src: 'img/craftidraw-logo.png',
@@ -77,16 +76,6 @@ const config: Config = {
                     position: 'left',
                     label: 'Articles',
                 },
-                {
-                    href: 'https://craftidraw.com',
-                    label: 'Site',
-                    position: 'right',
-                },
-                {
-                    href: 'https://github.com/Craftidraw',
-                    label: 'Repository',
-                    position: 'right',
-                },
             ],
         },
         footer: {
@@ -96,11 +85,11 @@ const config: Config = {
                     title: 'Sites',
                     items: [
                         {
-                            label: 'Craftidraw',
+                            label: 'Board',
                             href: 'https://craftidraw.com',
                         },
                         {
-                            label: 'Workspaces',
+                            label: 'Cloud Platform',
                             href: 'https://app.craftidraw.com/',
                         },
                         {
