@@ -11,5 +11,4 @@ node_modules/
 .vscode/
 .hintrc
 
-packages/assets/fonts/
 packages/assets/images/
