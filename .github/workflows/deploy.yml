@@ -32,8 +32,7 @@ jobs:
             
             git pull origin main
             
-            LATEST_BRANCH=$(git ls-remote --heads https://github.com/InventivetalentDev/minecraft-assets.git | grep -v 'refs/heads/master' | head -n 1 | cut -f 2)
-            git clone --single-branch --branch "${LATEST_BRANCH}" https://github.com/InventivetalentDev/minecraft-assets.git /tmp/minecraft-assets
+            git clone --single-branch --branch "1.21.4" https://github.com/InventivetalentDev/minecraft-assets.git /tmp/minecraft-assets
             
             mkdir -p packages/assets/images/minecraft/textures/item/
             mkdir -p packages/assets/images/minecraft/textures/block/
