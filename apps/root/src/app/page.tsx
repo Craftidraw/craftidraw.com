@@ -31,34 +31,28 @@ export default function Home() {
     const [boardLoaded, setBoardLoaded] = useState(false);
     const [itemsLoaded, setItemsLoaded] = useState(false);
     const isPopulated = boardLoaded && itemsLoaded;
-    const { cookieConsent, ask, isLoading: isCookieLoading } = useConsent();
+    const { cookieConsent, ask, isLoading: isConsentLoading } = useConsent();
 
     useEffect(() => {
-        if (isCookieLoading) return;
-        if (!cookieConsent?.cookies) {
+        if (isConsentLoading) return;
+
+        if (!cookieConsent?.essential) {
             ask(
-                'cookies',
-                'Cookie Consent',
-                'Craftidraw uses cookies to improve your experience. By continuing to use this site, you agree to our use of cookies. [Learn more](https://docs.craftidraw.com/privacy)',
-                {
-                    text: 'I understand',
-                },
+                'essential',
+                'Essential Cookies',
+                'Craftidraw uses essential cookies to operate our site. [Learn more](https://docs.craftidraw.com/articles)',
+                { text: 'Accept All' },
             );
-        }
-        if (cookieConsent?.analytics === undefined) {
+        } else if (cookieConsent?.analytics === undefined) {
             ask(
                 'analytics',
-                'Analytics Consent',
-                'Craftidraw uses anonymous analytics to improve our service. This is an opt-in feature. [Learn more](https://docs.craftidraw.com/privacy)',
-                {
-                    text: 'Opt In',
-                },
-                {
-                    text: 'No Thanks',
-                },
+                'Analytics Cookies',
+                'Craftidraw uses anonymous analytics to improve our service. [Learn more](https://docs.craftidraw.com/articles)',
+                { text: 'Accept Analytics' },
+                { text: 'Reject Analytics' },
             );
         }
-    }, [isCookieLoading, cookieConsent, ask]);
+    }, [isConsentLoading, cookieConsent, ask]);
 
     useEffect(() => {
         const storedBoard = localStorage.getItem('board');

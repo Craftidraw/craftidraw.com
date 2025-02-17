@@ -11,7 +11,7 @@ export function usePostHog() {
         if (cookieConsent?.analytics) {
             const instance = posthogCjs.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
                 api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST!,
-                person_profiles: 'identified_only',
+                person_profiles: 'never',
             });
 
             setPosthog(instance ?? null);

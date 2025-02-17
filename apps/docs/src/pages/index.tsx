@@ -3,6 +3,7 @@ import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import HomepageLinks from '@site/src/components/HomepageLinks';
 import { Container } from 'react-bootstrap';
+import HomepageSupport from '../components/HomepageSupport';
 
 function HomepageHeader() {
     const { siteConfig } = useDocusaurusContext();
@@ -24,6 +25,7 @@ export default function Home(): JSX.Element {
             <HomepageHeader />
             <main>
                 <HomepageFeatures />
+                <HomepageSupport />
             </main>
         </Layout>
     );

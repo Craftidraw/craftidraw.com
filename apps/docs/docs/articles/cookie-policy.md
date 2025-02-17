@@ -1,218 +1,79 @@
 # Cookie Policy
 
-Last Updated: November 16, 2024
+Effective: February 7, 2025 | Last Updated: February 7, 2025
 
-## 1. Introduction
+## 1. Key Definitions
 
-This Cookie Policy explains how Craftidraw ("we", "us", "our") uses cookies and similar technologies across our services:
+- **Cookies**: Small text files stored on your device
+- **LocalStorage**: Browser storage for persistent data
+- **SessionStorage**: Temporary browser storage
+- **Third Parties**: Services we integrate with (PostHog, Stripe, etc.)
 
-- Craftidraw (craftidraw.com) - Free drawing boards
-- Craftidraw Workspaces (app.craftidraw.com) - Premium collaborative workspaces
+## 2. Essential Cookies (Required)
 
-## 2. What Are Cookies?
+### All Services
 
-Cookies are small text files placed on your device when you visit our websites. They help us provide and improve our services by:
+- Functionality: Board data storage, CSRF protection
+- Storage: LocalStorage/SessionStorage
+- Duration: Up to 1 year
 
-- Remembering your preferences
-- Understanding how you use our services
-- Improving site functionality
-- Providing analytics data
+### Workspaces Only
 
-## 3. Types of Cookies We Use
+- Authentication: Session tokens for logins
+- Security: CSRF protection tokens
+- Duration: Session or 30 days (if "Remember Me" enabled)
 
-### 3.1 Essential Cookies (Both Services)
+## 3. Optional Cookies
 
-Required for basic site functionality:
+We require consent for:
 
-- Session management
-- Security features
-- Load balancing
-- Response to service failures
+### Analytics Cookies
 
-### 3.2 Functional Cookies (Workspaces Only)
+- Provider: PostHog ([Privacy Policy](https://posthog.com/privacy))
+- Purpose: Usage tracking, feature improvement
+- Data: Anonymized interaction data
+- Retention: Up to 2 years
+- Opt-out: Available in cookie settings
 
-Enhance your experience:
+### Third-Party Authentication
 
-- Remember your login details
-- Store your preferences
-- Maintain workspace settings
-- Remember your language choice
+- Providers: Google, Discord, Facebook, GitHub
+- Purpose: Secure login functionality
+- Data: OAuth tokens only
+- Retention: Session-based
 
-### 3.3 Analytics Cookies (Both Services)
+## 4. Your Choices
 
-Help us understand site usage:
+### Browser Controls
 
-- Google Analytics cookies
-- Usage patterns
-- Feature popularity
-- Performance monitoring
+All modern browsers allow:
 
-### 3.4 Authentication Cookies (Workspaces Only)
+- Cookie deletion
+- Blocking all/third-party cookies
+- Per-site exceptions
 
-Manage your login session:
+### Specific Opt-Outs
 
-- Google authentication
-- Discord authentication
-- Facebook authentication
-- GitHub authentication
+- Analytics: Disable in [Cookie Settings](/preferences)
+- Authentication: Use email/password instead of social logins
+- CCPA: [Do Not Sell My Info](https://app.craftidraw.com/ccpa-opt-out)
 
-## 4. Specific Cookie Usage
+## 5. Data Protection
 
-### 4.1 Free Boards (craftidraw.com)
+- Encryption: All data in transit (TLS 1.2+)
+- Access: Strict internal controls
+- No sale: We don't sell cookie data
 
-Essential Cookies:
+## 6. Policy Updates
 
-- LocalStorage for board data
-- Session identifiers
-- CSRF protection
+We'll notify users of material changes via:
 
-Analytics Cookies:
+- Site banner notification
+- Email (for workspace users)
+- Updated effective date
 
-- Google Analytics (\_ga, \_gid)
-- Performance metrics
+## 7. Contact
 
-### 4.2 Workspaces (app.craftidraw.com)
+Questions? Reach out to us at:
 
-Essential Cookies:
-
-- Session management
-- Security tokens
-- CSRF protection
-
-Functional Cookies:
-
-- User preferences
-- Workspace settings
-- Interface customization
-
-Authentication Cookies:
-
-- OAuth tokens
-- Session identifiers
-- Remember-me functionality
-
-Analytics Cookies:
-
-- Google Analytics (\_ga, \_gid)
-- Usage statistics
-- Performance monitoring
-
-## 5. Third-Party Cookies
-
-### 5.1 Analytics
-
-- Google Analytics
-  - Purpose: Track site usage
-  - Data collected: Page views, user behavior
-  - Duration: Up to 2 years
-
-### 5.2 Authentication (Workspaces Only)
-
-- Google
-- Discord
-- Facebook
-- GitHub
-  - Purpose: User authentication
-  - Data collected: Authentication tokens
-  - Duration: Session-based
-
-### 5.3 Payment Processing (Workspaces Only)
-
-- Stripe
-  - Purpose: Payment processing
-  - Data collected: Transaction data
-  - Duration: As required for processing
-
-## 6. Cookie Duration
-
-### 6.1 Session Cookies
-
-- Deleted when you close your browser
-- Used for temporary storage
-- Manage active sessions
-
-### 6.2 Persistent Cookies
-
-- Remain until expiration or deletion
-- Store preferences
-- Remember settings
-- Duration varies by purpose
-
-## 7. Managing Cookies
-
-### 7.1 Browser Settings
-
-You can manage cookies through your browser:
-
-- Chrome
-- Firefox
-- Safari
-- Edge
-- Other browsers
-
-Common controls:
-
-- Block all cookies
-- Block third-party cookies
-- Delete cookies
-- Allow site-specific cookies
-
-### 7.2 Opt-Out Options
-
-- Google Analytics opt-out
-- Individual service opt-outs
-- Do Not Track signals
-
-## 8. Impact of Blocking Cookies
-
-### 8.1 Free Boards (craftidraw.com)
-
-If you block cookies:
-
-- Board data may not save locally
-- Analytics won't function
-- Basic drawing still works
-
-### 8.2 Workspaces (app.craftidraw.com)
-
-If you block cookies:
-
-- Cannot log in
-- Sessions won't maintain
-- Features may break
-- Preferences won't save
-
-## 9. Privacy and Data Protection
-
-### 9.1 Data Usage
-
-- No personal identification through cookies alone
-- Analytics data is anonymized
-- Cookie data is not sold
-
-### 9.2 Data Security
-
-- Encrypted transmission
-- Secure storage
-- Access controls
-- Regular security reviews
-
-## 10. Updates to This Policy
-
-We may update this Cookie Policy to reflect:
-
-- Service changes
-- Legal requirements
-- Best practices
-
-Changes will be posted:
-
-- On our websites
-- In our application
-- Through user notifications
-
-## 11. Contact Us
-
-For questions about cookies:
-
-- Email: <contact@craftidraw.com>
+- Email: [contact@craftidraw.com](mailto:contact@craftidraw.com)

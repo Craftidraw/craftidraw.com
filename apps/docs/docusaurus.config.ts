@@ -56,75 +56,16 @@ const config: Config = {
     ],
 
     themeConfig: {
-        // Replace with your project's social card
         image: 'img/docusaurus-social-card.jpg',
         navbar: {
+            title: 'Craftidraw Docs',
             logo: {
                 alt: 'craftidraw-logo',
                 src: 'img/craftidraw-logo.png',
             },
-            items: [
-                {
-                    type: 'docSidebar',
-                    sidebarId: 'guidesSidebar',
-                    position: 'left',
-                    label: 'Guides',
-                },
-                {
-                    type: 'docSidebar',
-                    sidebarId: 'articlesSidebar',
-                    position: 'left',
-                    label: 'Articles',
-                },
-            ],
         },
         footer: {
             style: 'dark',
-            links: [
-                {
-                    title: 'Sites',
-                    items: [
-                        {
-                            label: 'Board',
-                            href: 'https://craftidraw.com',
-                        },
-                        {
-                            label: 'Cloud Platform',
-                            href: 'https://app.craftidraw.com/',
-                        },
-                        {
-                            label: 'Documentation',
-                            href: 'https://docs.craftidraw.com/',
-                        },
-                    ],
-                },
-                {
-                    title: 'Resources',
-                    items: [
-                        {
-                            label: 'Guides',
-                            to: '/guides/getting-started',
-                        },
-                        {
-                            label: 'Articles',
-                            to: '/articles/introduction',
-                        },
-                    ],
-                },
-                {
-                    title: 'Community',
-                    items: [
-                        {
-                            label: 'Discord',
-                            href: 'https://discord.gg/craftidraw',
-                        },
-                        {
-                            label: 'GitHub',
-                            href: 'https://github.com/Craftidraw/craftidraw.com',
-                        },
-                    ],
-                },
-            ],
             copyright: `Copyright © ${new Date().getFullYear()} Craftidraw. Built with Docusaurus.`,
         },
         prism: {

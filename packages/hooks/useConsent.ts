@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 import createCUID from '~/lib/cuid/createCUID';
 import { removeNotification } from '~/lib/store/features/appSlice';
 import type { CookiePreferences } from '~/types/preferences';
 import { useAppDispatch } from '~/lib/store/hooks';
 import useNotification from '~/providers/NotificationProvider';
+
+const COOKIE_NAME = 'cd.cookie_preferences';
 
 const useConsent = () => {
     const dispatch = useAppDispatch();
@@ -14,14 +17,20 @@ const useConsent = () => {
     const { registerNotification } = useNotification();
 
     useEffect(() => {
-        const storedConsent = JSON.parse(localStorage.getItem('consentSettings') ?? '{}') as CookiePreferences;
-        setCookieConsent(storedConsent);
+        const storedConsent = Cookies.get(COOKIE_NAME);
+        if (storedConsent) {
+            setCookieConsent(JSON.parse(storedConsent) as CookiePreferences);
+        }
         setIsLoading(false);
     }, []);
 
     useEffect(() => {
         if (cookieConsent !== null) {
-            localStorage.setItem('consentSettings', JSON.stringify(cookieConsent));
+            Cookies.set(COOKIE_NAME, JSON.stringify(cookieConsent), {
+                expires: 365,
+                secure: true,
+                sameSite: 'Strict',
+            });
         }
     }, [cookieConsent]);
 
@@ -29,14 +38,8 @@ const useConsent = () => {
         cookieName: keyof CookiePreferences,
         title: string,
         message: string,
-        accept?: {
-            text: string;
-            onClick?: () => void;
-        },
-        decline?: {
-            text: string;
-            onClick?: () => void;
-        },
+        accept?: { text: string; onClick?: () => void },
+        decline?: { text: string; onClick?: () => void },
     ) => {
         const notificationId = createCUID();
         const acceptCallbackId = createCUID();
