@@ -1,0 +1,53 @@
+name: Deploy Craftidraw
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+        
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            set -e
+            
+            cd /var/www/craftidraw.com
+            
+            git pull origin main
+            
+            LATEST_BRANCH=$(git ls-remote --heads https://github.com/InventivetalentDev/minecraft-assets.git | grep -v 'refs/heads/master' | head -n 1 | cut -f 2)
+            git clone --single-branch --branch "${LATEST_BRANCH}" https://github.com/InventivetalentDev/minecraft-assets.git /tmp/minecraft-assets
+            
+            mkdir -p packages/assets/images/minecraft/textures/item/
+            mkdir -p packages/assets/images/minecraft/textures/block/
+            cp -r /tmp/minecraft-assets/assets/minecraft/textures/item/* packages/assets/images/minecraft/textures/item/
+            cp -r /tmp/minecraft-assets/assets/minecraft/textures/block/* packages/assets/images/minecraft/textures/block/
+            
+            node generate-json.js
+            rm -rf /tmp/minecraft-assets
+            
+            npm ci
+            npm run build
+            
+            for SESSION in craftidraw-root craftidraw-docs; do
+              if screen -list | grep -q "$SESSION"; then
+                screen -S "$SESSION" -X quit
+              fi
+            done
+            
+            screen -dmS craftidraw-root bash -c "cd /var/www/craftidraw.com/apps/root && npm start"
+            screen -dmS craftidraw-docs bash -c "cd /var/www/craftidraw.com/apps/docs && npm run serve -- --build --port 3002"
