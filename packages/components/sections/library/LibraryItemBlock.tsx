@@ -68,6 +68,7 @@ const LibraryItemBlock: React.FC = () => {
                 type: 'success',
                 title: 'Item Added',
                 message: 'Item successfully pasted to the board.',
+                required: false,
             }),
         );
 
@@ -90,6 +91,7 @@ const LibraryItemBlock: React.FC = () => {
                     type: 'success',
                     title: 'Item Deleted',
                     message: 'Item successfully deleted.',
+                    required: false,
                 }),
             );
         } catch (error) {
@@ -100,6 +102,7 @@ const LibraryItemBlock: React.FC = () => {
                     type: 'error',
                     title: 'Error Deleting Item',
                     message: "Couldn't delete item.",
+                    required: false,
                 }),
             );
         }

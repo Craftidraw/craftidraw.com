@@ -65,7 +65,7 @@ const LibraryImageBlock: React.FC = () => {
         } as ImageItem | CustomItem;
 
         updateItem(updatedItem, { ...currentItem });
-        
+
         setSelectedLibraryImage(null);
         dispatch(setIsLibraryOpen(false));
     }, [dispatch, currentItem, selectedLibraryImage, updateItem, selectedItem]);
@@ -85,6 +85,7 @@ const LibraryImageBlock: React.FC = () => {
                     type: 'success',
                     title: 'Image Deleted',
                     message: 'Image successfully deleted.',
+                    required: false,
                 }),
             );
         } catch (error) {
@@ -95,6 +96,7 @@ const LibraryImageBlock: React.FC = () => {
                     type: 'error',
                     title: 'Error Deleting Image',
                     message: "Couldn't delete image.",
+                    required: false,
                 }),
             );
         }

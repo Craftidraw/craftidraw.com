@@ -1,7 +1,6 @@
 import { saveCustomFile, uploadCustomFile, uploadFile } from '~/utils/file';
 import { addNotification, selectAllItems, selectItemById, setBoard } from '~/lib/store/features/appSlice';
 import createCUID from '~/lib/cuid/createCUID';
-import type { Notification } from '~/types/notification';
 import { fixItem, validateItem } from '~/lib/validate/validateItem';
 import type { CustomItem, Item, TooltipLine } from '~/types/item';
 import type { LibraryExportConfiguration, LibraryTooltipConfiguration } from '~/types/library';
@@ -18,7 +17,15 @@ export const useFileOperations = () => {
     const selectedItem = useAppSelector((state: RootState) => state.app.selectedItem);
     const currentItem = useAppSelector((state: RootState) => selectItemById(state, selectedItem ?? ''));
     const selectedExportConfiguration = useAppSelector((state: RootState) => state.app.selectedConfiguration);
-    const { saveImage, saveItem, validateImageFile, validateImageFileSize, saveExportConfiguration, saveTooltipConfiguration, getExportConfiguration } = useIndexedDB();
+    const {
+        saveImage,
+        saveItem,
+        validateImageFile,
+        validateImageFileSize,
+        saveExportConfiguration,
+        saveTooltipConfiguration,
+        getExportConfiguration,
+    } = useIndexedDB();
     const { requestConfirmation } = useConfirmation();
 
     async function exportBoard() {
@@ -36,8 +43,10 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Export Complete',
                     message: 'Board successfully exported.',
-                } as Notification),
+                    required: false,
+                }),
             );
+
         } catch (err) {
             console.error(err);
             dispatch(
@@ -46,7 +55,8 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Export Failed',
                     message: 'Board failed to export.',
-                } as Notification),
+                    required: false,
+                }),
             );
         }
     }
@@ -85,20 +95,24 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Import Complete',
                     message: 'Board successfully imported.',
-                } as Notification),
+                    required: false,
+                }),
             );
         } catch (err) {
             console.error('Import Error:', err);
+
             dispatch(
                 addNotification({
                     id: createCUID(),
                     type: 'error',
                     title: 'Import Failed',
                     message: 'Board import failed. Please try again.',
-                } as Notification),
+                    required: false,
+                }),
             );
         }
     }
+
 
     async function saveItemToLibrary() {
         if (!currentItem) {
@@ -108,10 +122,12 @@ export const useFileOperations = () => {
                     type: 'warning',
                     title: 'No Item Selected',
                     message: 'Please select an item to save.',
-                } as Notification),
+                    required: false,
+                }),
             );
             return;
         }
+
         await saveItem(currentItem)
             .then(() => {
                 dispatch(
@@ -120,9 +136,11 @@ export const useFileOperations = () => {
                         type: 'success',
                         title: 'Item Saved',
                         message: 'Item successfully saved.',
-                    } as Notification),
+                        required: false,
+                    }),
                 );
             })
+
             .catch(() => {
                 dispatch(
                     addNotification({
@@ -130,9 +148,11 @@ export const useFileOperations = () => {
                         type: 'error',
                         title: 'Save Failed',
                         message: 'Failed to save the item. Please try again.',
-                    } as Notification),
+                        required: false,
+                    }),
                 );
             });
+
     }
 
     async function exportItem() {
@@ -143,9 +163,11 @@ export const useFileOperations = () => {
                     type: 'warning',
                     title: 'No Item Selected',
                     message: 'Please select an item to export.',
-                } as Notification),
+                    required: false,
+                }),
             );
             return;
+
         }
         try {
             const data = JSON.stringify(currentItem);
@@ -156,8 +178,10 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Export Complete',
                     message: 'Item successfully exported.',
-                } as Notification),
+                    required: false,
+                }),
             );
+
         } catch (err) {
             console.error(err);
             dispatch(
@@ -166,9 +190,11 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Export Failed',
                     message: 'Item failed to export.',
-                } as Notification),
+                    required: false,
+                }),
             );
         }
+
     }
 
     async function importItem() {
@@ -193,6 +219,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Import Complete',
                     message: 'Item successfully imported.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -203,6 +230,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Import Failed',
                     message: 'Item import failed. Please try again.',
+                    required: false,
                 }),
             );
         }
@@ -219,6 +247,7 @@ export const useFileOperations = () => {
                         type: 'success',
                         title: 'Image Saved',
                         message: 'Image saved successfully.',
+                        required: false,
                     }),
                 );
             } else {
@@ -228,6 +257,7 @@ export const useFileOperations = () => {
                         type: 'warning',
                         title: 'Invalid File',
                         message: 'Please make sure the file is a valid image and is under 5MB.',
+                        required: false,
                     }),
                 );
             }
@@ -239,6 +269,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Upload Failed',
                     message: 'Image failed to upload.',
+                    required: false,
                 }),
             );
         }
@@ -254,6 +285,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Configuration Saved',
                     message: 'Configuration saved successfully.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -264,6 +296,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Configuration Failed',
                     message: 'Configuration failed to save.',
+                    required: false,
                 }),
             );
         }
@@ -278,6 +311,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Configuration Saved',
                     message: 'Configuration saved successfully.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -300,6 +334,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Export Complete',
                     message: 'Configuration successfully exported.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -310,6 +345,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Export Failed',
                     message: 'Configuration export failed. Please try again.',
+                    required: false,
                 }),
             );
         }
@@ -324,6 +360,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Configuration Saved',
                     message: 'Configuration saved successfully.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -344,6 +381,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Export Complete',
                     message: 'Tooltip configuration successfully exported.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -354,6 +392,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Export Failed',
                     message: 'Tooltip configuration export failed. Please try again.',
+                    required: false,
                 }),
             );
         }
@@ -374,6 +413,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Configuration Saved',
                     message: 'Configuration saved successfully.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -384,6 +424,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Import Failed',
                     message: 'Configuration import failed. Please try again.',
+                    required: false,
                 }),
             );
         }
@@ -421,6 +462,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Export Failed',
                     message: 'Please set an export configuration. You can do this in the export configuration menu.',
+                    required: false,
                 }),
             );
             return;
@@ -453,6 +495,7 @@ export const useFileOperations = () => {
                     type: 'success',
                     title: 'Export Successful',
                     message: 'Item exported successfully.',
+                    required: false,
                 }),
             );
         } catch (err) {
@@ -463,6 +506,7 @@ export const useFileOperations = () => {
                     type: 'error',
                     title: 'Export Failed',
                     message: 'An error occurred during export. Please try again.',
+                    required: false,
                 }),
             );
         }

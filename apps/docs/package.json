@@ -1,6 +1,6 @@
 {
     "name": "docs.craftidraw.com",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "private": true,
     "scripts": {
         "docusaurus": "docusaurus",
@@ -18,9 +18,11 @@
         "@docusaurus/core": "3.6.1",
         "@docusaurus/preset-classic": "3.6.1",
         "@mdx-js/react": "^3.0.0",
+        "bootstrap": "^5.3.3",
         "clsx": "^2.0.0",
         "prism-react-renderer": "^2.3.0",
         "react": "^18.0.0",
+        "react-bootstrap": "^2.10.9",
         "react-dom": "^18.0.0"
     },
     "devDependencies": {

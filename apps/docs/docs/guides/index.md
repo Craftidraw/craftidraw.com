@@ -1,4 +1,8 @@
-# Getting Started
+---
+title: Getting Started
+slug: /guides
+sidebar_position: 1
+---
 
 ## Using Craftidraw
 

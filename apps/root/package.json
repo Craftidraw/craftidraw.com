@@ -1,11 +1,12 @@
 {
     "name": "craftidraw.com",
-    "version": "0.0.1",
+    "version": "0.2.0",
     "type": "module",
     "private": true,
     "scripts": {
         "dev": "next dev",
         "build": "next build",
+        "postbuild": "next-sitemap",
         "start": "next start",
         "lint": "next lint",
         "lint:fix": "next lint --fix",

@@ -1,232 +1,153 @@
 # Terms of Service
 
-Last Updated: November 16, 2024
+Effective: February 7, 2025 | Last Updated: February 7, 2025
 
 ## 1. Introduction
 
 These Terms of Service ("Terms") govern your use of Craftidraw's services:
 
--   Craftidraw (craftidraw.com) - Free drawing boards with local storage
--   Craftidraw Workspaces (app.craftidraw.com) - Premium collaborative workspaces
+- Craftidraw (craftidraw.com) - Free drawing boards with local storage
+- Craftidraw Workspaces (app.craftidraw.com) - Premium collaborative workspaces
 
 By accessing or using either service, you agree to be bound by these Terms.
 
-## 2. Service Definitions
+## 2. Services
 
-### 2.1 Craftidraw Free Boards (craftidraw.com)
+- Craftidraw (craftidraw.com): Free drawing boards with local storage
+- Craftidraw Workspaces (app.craftidraw.com): Premium collaborative workspaces
 
--   Browser-based drawing tool
--   Locally stored boards
--   No registration required
--   Free to use
+## 3. Account Terms & Acceptable Use
 
-### 2.2 Craftidraw Workspaces (app.craftidraw.com)
+### 3.1 Account Requirements
 
--   Collaborative workspace platform
--   Cloud-based storage
--   User registration required
--   Subscription-based service
+- Must be 13+ years old
+- Provide accurate information
+- One account per person
+- Authentication via: Google, Discord, Facebook, GitHub
+- Responsible for maintaining account security
+- Third-party authentication providers have their own terms
+- We are not responsible for third-party service issues
 
-## 3. Account Terms (Workspaces)
-
-### 3.1 Account Creation
-
--   Must be 13 years or older
--   Must provide accurate information
--   Must maintain account security
--   One person per account
--   Available authentication methods: Google, Discord, Facebook, GitHub
-
-### 3.2 Account Responsibilities
-
--   Responsible for all activity under your account
--   Must notify us of unauthorized use
--   Must not share account credentials
--   Must not use accounts for automated access
-
-## 4. Acceptable Use
-
-### 4.1 General Conduct
+### 3.2 Prohibited Activities
 
 You agree not to:
 
--   Violate any laws or regulations
--   Infringe on intellectual property rights
--   Harass, abuse, or harm others
--   Spread malware or viruses
--   Attempt to gain unauthorized access
--   Interfere with service operation
+- Violate laws or regulations
+- Infringe intellectual property rights
+- Harass, abuse, or harm others
+- Spread malware or unauthorized content
+- Attempt unauthorized access
+- Interfere with service operation
+- Share adult/explicit material or private information
+- Create automated bots/scrapers without permission
+- Impersonate others or share misleading content
+- Engage in excessive bulk content creation
 
-### 4.2 Content Restrictions
+## 4. User-Generated Content
 
-Prohibited content includes:
+### 4.1 Content Ownership
 
--   Illegal content
--   Malicious code
--   Spam or unauthorized advertising
--   Discriminatory content
--   Adult or explicit material
--   Private information of others
+- You retain ownership rights to content you create
+- By posting content, you grant us a worldwide, non-exclusive license to host, display, and reproduce your content solely for service operation
 
-## 5. Service Specific Terms
+### 4.2 Content Standards
 
-### 5.1 Free Boards (craftidraw.com)
+All content must:
 
--   Data is stored locally in your browser
--   No guarantee of data persistence
--   Service provided "as is"
--   No warranty of availability
+- Comply with these Terms and all applicable laws
+- Not contain harmful or illegal material
+- Respect third-party intellectual property rights
 
-### 5.2 Workspaces (app.craftidraw.com)
-
--   Subscription required for access
--   Data stored on our servers
--   Collaborative features available
--   Support provided per subscription level
-
-## 6. Payment Terms (Workspaces)
-
-### 6.1 Subscription
-
--   Prices listed on website
--   Billed monthly or annually
--   Automatic renewal
--   Payments processed by Stripe
-
-### 6.2 Refunds
-
--   Pro-rated refunds for annual plans
--   No refunds for monthly plans
--   No refunds for partial use
--   Refund requests evaluated case-by-case
-
-## 7. Cancellation and Termination
-
-### 7.1 Free Boards
-
--   No cancellation needed
--   Access may be terminated for violation of terms
-
-### 7.2 Workspaces
-
--   Cancel subscription at any time
--   Data retained for 6 months after cancellation
--   Deleted after 14 days post-inactivity notice
--   We may terminate for terms violations
-
-## 8. Intellectual Property
-
-### 8.1 Our Rights
-
--   Service name, logo, and branding
--   Service code and infrastructure
--   Marketing and documentation
-
-### 8.2 Your Rights
-
--   Content you create
--   Your personal data
--   Your confidential information
-
-## 9. Data Handling
-
-### 9.1 Free Boards
-
--   No server-side data storage
--   Local browser storage only
--   No data collection except analytics
-
-### 9.2 Workspaces
-
--   Cloud storage of workspace data
--   Data processing for service provision
--   Backup and security measures
--   Details in Privacy Policy
-
-## 10. Liability and Warranty
-
-### 10.1 Service Warranty
-
--   Services provided "as is"
--   No guarantee of uninterrupted service
--   No warranty of fitness for purpose
--   Best effort maintenance and uptime
-
-### 10.2 Limitation of Liability
-
--   Not liable for data loss
--   Not liable for service interruption
--   Not liable for third-party actions
--   Liability limited to subscription fees paid
-
-## 11. Changes to Service
+### 4.3 Content Moderation
 
 We reserve the right to:
 
--   Modify or discontinue features
--   Change pricing with notice
--   Update these terms
--   Require acceptance of updates
+- Remove any content violating these Terms
+- Disable access to objectionable content
+- Cooperate with legal requests for content removal
 
-## 12. Third-Party Services
+### 4.4 Copyright Claims
 
-### 12.1 Authentication Providers
+To report copyright infringement:
 
--   Google
--   Discord
--   Facebook
--   GitHub
+- Send notice to [contact@craftidraw.com](mailto:contact@craftidraw.com)
+- Include DMCA-compliant information
+- Repeat infringers may have accounts terminated
 
-### 12.2 Other Services
+## 5. Data & Privacy
 
--   Stripe for payments
--   Google Analytics
--   Cloud hosting providers
+### 5.1 Free Boards
 
-## 13. Dispute Resolution
+- Data stored locally in browser
+- No guarantee of data persistence
+- No server-side storage
+- Limited analytics collection
 
-### 13.1 Governing Law
+### 5.2 Workspaces
 
--   [Specify applicable law]
--   [Specify jurisdiction]
+- Cloud storage with security measures
+- Data processing for service provision
+- Backup systems in place
+- Subject to Privacy Policy
 
-### 13.2 Resolution Process
+## 6. Payment Terms (Workspaces)
 
--   Good faith negotiation
--   Written notice of disputes
--   30-day resolution period
--   Arbitration if unresolved
+- Subscription required for access
+- Billed monthly/annually through Stripe
+- Automatic renewal unless cancelled
+- Refunds available within 7 days of purchase
+- Price changes effective with notice
 
-## 14. Contact Information
+### 6.1 Free Trials
 
-For service-related inquiries:
+- Free trials available at our discretion
+- Trials convert to paid subscriptions automatically
+- Must cancel before trial ends to avoid charges
 
--   Email: [Contact Email]
--   Address: [Company Address]
--   Support: [Support URL]
+## 7. Liability & Legal
 
-## 15. Additional Terms
+### 7.1 Service Warranty
 
-### 15.1 Severability
+- Services provided "as is"
+- No guarantee of uninterrupted service
+- No warranty of fitness for purpose
 
-If any provision is found unenforceable, other terms remain in effect.
+### 7.2 Limitation of Liability
 
-### 15.2 Entire Agreement
+- Not liable for data loss or interruption
+- Liability limited to fees paid
+- Force majeure applies
 
-These Terms constitute the entire agreement between you and Craftidraw.
+### 7.3 Dispute Resolution
 
-### 15.3 Waiver
+- Governed by New Jersey law
+- Mandatory arbitration for unresolved disputes
+- 30-day good faith resolution period
 
-No waiver of any term shall be deemed a further or continuing waiver.
+### 7.3 User Content Disclaimer
 
-## 16. Export Compliance
+- We do not endorse or control user-generated content
+- You are solely responsible for your content
+- We are not liable for content accuracy or legality
 
-Users must comply with export laws and restrictions.
+## 8. General Provisions
 
-## 17. Assignment
+- We may modify terms with notice
+- Notice will be provided via email/service dashboard 30 days before changes
+- Continued use constitutes acceptance of modified terms
+- Terms severable if partially invalid
+- No waiver of rights
+- Assignment requires our consent
+- Export compliance required
 
-We may assign these Terms; you may not without our consent.
+### 9 Termination
 
-## 18. Force Majeure
+- We reserve the right to suspend or terminate accounts for violations
+- Users may terminate accounts at any time
+- Survival clauses for intellectual property and liability sections
 
-Not liable for failures due to circumstances beyond reasonable control.
+## 10. Contact
+
+Questions? Reach out to us at:
+
+- Email: [contact@craftidraw.com](mailto:contact@craftidraw.com)

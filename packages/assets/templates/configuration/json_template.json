@@ -1,0 +1,7 @@
+{
+  "item": {
+    "id": "1",
+    "material": "%item_entity%",
+    "lore": [%item_lore_all%]
+  }
+}
