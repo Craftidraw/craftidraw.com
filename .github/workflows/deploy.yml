@@ -27,29 +27,38 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             set -e
-            
+
             cd /var/www/craftidraw.com
-            
+
             git pull origin main
-            
-            git clone --single-branch --branch "1.21.4" https://github.com/InventivetalentDev/minecraft-assets.git /tmp/minecraft-assets
-            
-            mkdir -p packages/assets/images/minecraft/textures/item/
-            mkdir -p packages/assets/images/minecraft/textures/block/
-            cp -r /tmp/minecraft-assets/assets/minecraft/textures/item/* packages/assets/images/minecraft/textures/item/
-            cp -r /tmp/minecraft-assets/assets/minecraft/textures/block/* packages/assets/images/minecraft/textures/block/
-            
+
+            if [ -d "/tmp/minecraft-assets" ]; then
+              echo "Directory /tmp/minecraft-assets exists. Fetching latest changes..."
+              cd /tmp/minecraft-assets
+              git fetch origin 1.21.4
+              git reset --hard origin/1.21.4
+            else
+              echo "Directory /tmp/minecraft-assets does not exist. Cloning..."
+              git clone --single-branch --branch "1.21.4" https://github.com/InventivetalentDev/minecraft-assets.git /tmp/minecraft-assets
+            fi
+
+            mkdir -p /var/www/craftidraw.com/packages/assets/images/minecraft/textures/item/
+            mkdir -p /var/www/craftidraw.com/packages/assets/images/minecraft/textures/block/
+            cp -r assets/minecraft/textures/item/* /var/www/craftidraw.com/packages/assets/images/minecraft/textures/item/
+            cp -r assets/minecraft/textures/block/* /var/www/craftidraw.com/packages/assets/images/minecraft/textures/block/
+
+            cd /var/www/craftidraw.com
             node generate-json.js
             rm -rf /tmp/minecraft-assets
-            
+
             npm ci
             npm run build
-            
+
             for SESSION in craftidraw-root craftidraw-docs; do
               if screen -list | grep -q "$SESSION"; then
                 screen -S "$SESSION" -X quit
               fi
             done
-            
+
             screen -dmS craftidraw-root bash -c "cd /var/www/craftidraw.com/apps/root && npm start"
             screen -dmS craftidraw-docs bash -c "cd /var/www/craftidraw.com/apps/docs && npm run serve -- --build --port 3002"
