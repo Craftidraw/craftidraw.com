@@ -9,6 +9,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
       
       - name: Install dependencies
         run: npm ci
@@ -26,12 +32,21 @@ jobs:
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
-            set -e
+            set -euo pipefail
 
+            # Fetch and update craftidraw
             cd /var/www/craftidraw.com
-
             git pull origin main
 
+            # Ensure correct Node.js version
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 22
+
+            # Install dependencies
+            npm ci
+
+            # Fetch and update minecraft-assets
             if [ -d "/tmp/minecraft-assets" ]; then
               echo "Directory /tmp/minecraft-assets exists. Fetching latest changes..."
               cd /tmp/minecraft-assets
@@ -42,23 +57,45 @@ jobs:
               git clone --single-branch --branch "1.21.4" https://github.com/InventivetalentDev/minecraft-assets.git /tmp/minecraft-assets
             fi
 
+            # Check and copy minecraft assets
+            cd /tmp/minecraft-assets
+            if [ ! -d "assets/minecraft/textures/item" ] || [ ! -d "assets/minecraft/textures/block" ]; then
+              echo "Error: Required Minecraft asset directories not found!"
+              exit 1
+            fi
+
+            # Create target directories
             mkdir -p /var/www/craftidraw.com/packages/assets/images/minecraft/textures/item/
             mkdir -p /var/www/craftidraw.com/packages/assets/images/minecraft/textures/block/
-            cp -r assets/minecraft/textures/item/* /var/www/craftidraw.com/packages/assets/images/minecraft/textures/item/
-            cp -r assets/minecraft/textures/block/* /var/www/craftidraw.com/packages/assets/images/minecraft/textures/block/
+
+            # Copy assets with verification
+            if ! cp -r assets/minecraft/textures/item/* /var/www/craftidraw.com/packages/assets/images/minecraft/textures/item/; then
+              echo "Error: Failed to copy item textures!"
+              exit 1
+            fi
+            if ! cp -r assets/minecraft/textures/block/* /var/www/craftidraw.com/packages/assets/images/minecraft/textures/block/; then
+              echo "Error: Failed to copy block textures!"
+              exit 1
+            fi
 
             cd /var/www/craftidraw.com
+
+            # Generate JSON & images
             node generate-json.js
+
+            # Remove temporary minecraft-assets
             rm -rf /tmp/minecraft-assets
 
-            npm ci
+            # Build
             npm run build
 
+            # Stop services if they are running
             for SESSION in craftidraw-root craftidraw-docs; do
               if screen -list | grep -q "$SESSION"; then
                 screen -S "$SESSION" -X quit
               fi
             done
 
-            screen -dmS craftidraw-root bash -c "cd /var/www/craftidraw.com/apps/root && npm start"
-            screen -dmS craftidraw-docs bash -c "cd /var/www/craftidraw.com/apps/docs && npm run serve -- --build --port 3002"
+            # Start services
+            screen -dmS craftidraw-root bash -c "cd /var/www/craftidraw.com/apps/root && npm run start -- --port 3050"
+            screen -dmS craftidraw-docs bash -c "cd /var/www/craftidraw.com/apps/docs && npm run serve -- --build --port 3052"
